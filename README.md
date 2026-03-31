@@ -2,6 +2,7 @@
 HKU STAT8307 Project
 Topic:
 
-Time Line:
+Timeline:
+DDL 4.5 Proposal
 
 Methodology:
