@@ -1,0 +1,12 @@
+extract_key_info: |
+  Extract key scientific information from the paper section below.
+  Section title: {section_title}
+  Section content: {section_content}
+
+structured_summary: |
+  Produce a structured academic summary using this extracted information:
+  {key_info}
+
+final_summary: |
+  Write a concise academic-style abstract using this structured summary:
+  {structured_summary}

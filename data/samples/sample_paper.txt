@@ -1,0 +1,20 @@
+TITLE
+A Lightweight Framework for Scientific Paper Summarization
+
+ABSTRACT
+This work proposes a modular pipeline for scientific paper summarization. The system focuses on reliability, interpretability, and straightforward local execution.
+
+1 INTRODUCTION
+Scientific paper summarization helps researchers quickly identify key contributions. Existing methods can be difficult to inspect in a classroom setting. This project aims to provide an explainable baseline for course use.
+
+2 METHODS
+We design a six-stage pipeline: document loading, section splitting, key information extraction, structured summary generation, final summary generation, and support checking. Each stage is implemented as an independent module to improve maintainability.
+
+3 RESULTS
+On sample papers, the system produces coherent summaries and captures major claims and methods. The runtime remains low on local machines, making it practical for demonstrations.
+
+4 LIMITATIONS
+The faithfulness check is heuristic and cannot replace full factual verification. Domain-specific terminology may reduce extraction quality for some papers.
+
+5 CONCLUSION
+A modular summarization agent can balance simplicity and interpretability for course projects.

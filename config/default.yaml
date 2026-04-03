@@ -1,0 +1,21 @@
+project_name: summarization-agent
+input_path: data/samples/sample_paper.txt
+output_path: data/outputs/summary.json
+max_sections: 20
+
+llm:
+  use_mock: true
+  #model: local-mock
+  model: deepseek-chat
+  api_key_env: OPENAI_API_KEY
+  #base_url: https://api.openai.com/v1
+  base_url: https://api.deepseek.com/v1
+  chat_endpoint: /chat/completions
+  timeout_seconds: 30
+  temperature: 0.0
+  max_tokens: 512
+
+pipeline:
+  min_sentence_chars: 30
+  max_summary_sentences: 6
+  use_llm_final_summary: true
