@@ -22,6 +22,7 @@ def main() -> None:
     output_path = Path(args.output)
     payload = json.loads(output_path.read_text(encoding="utf-8"))
 
+    # 这里是轻量离线评估：章节数、faithfulness 分数、未支持条目数。
     section_count = len(payload.get("sections", []))
     faithfulness = payload.get("verification", {}).get("faithfulness_score", 0.0)
     unsupported_count = len(payload.get("verification", {}).get("unsupported_claims", []))

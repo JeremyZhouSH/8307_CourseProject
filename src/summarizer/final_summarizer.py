@@ -13,6 +13,7 @@ class FinalSummarizer:
         limitations = self._join_items(key_info.get("limitations", []))
 
         sentences: list[str] = []
+        # 固定模板组装最终学术摘要，便于课程展示与解释。
         if objective:
             sentences.append(f"The paper investigates the following objective: {objective}")
         if methods:
@@ -30,5 +31,6 @@ class FinalSummarizer:
     def _join_items(self, items: object) -> str:
         if not isinstance(items, list):
             return ""
+        # 每类最多拼接两条，避免摘要段落过长。
         cleaned = [item.strip() for item in items if isinstance(item, str) and item.strip()]
         return " ".join(cleaned[:2])

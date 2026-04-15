@@ -1,1 +1,1 @@
-"""LLM adapters and prompt utilities."""
+"""LLM 适配器与提示词工具。"""

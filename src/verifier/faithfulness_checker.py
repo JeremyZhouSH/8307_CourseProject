@@ -11,6 +11,7 @@ class FaithfulnessChecker:
         key_info: dict[str, list[str]],
         document_text: str,
     ) -> dict[str, Any]:
+        # 逐条检查抽取 claim 是否原文可定位（字符串级启发式）。
         claims = [item for values in key_info.values() for item in values]
         unsupported = [claim for claim in claims if claim and claim not in document_text]
 
@@ -20,6 +21,7 @@ class FaithfulnessChecker:
         if not summary_tokens:
             score = 0.0
         else:
+            # 以词汇重叠率近似 faithfulness，适合课程项目快速对比。
             overlap = summary_tokens & doc_tokens
             score = len(overlap) / len(summary_tokens)
 

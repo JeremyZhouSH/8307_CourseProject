@@ -1,1 +1,1 @@
-"""Agent-level orchestration and state containers."""
+"""代理层编排与状态容器。"""

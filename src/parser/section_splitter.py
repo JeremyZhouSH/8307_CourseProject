@@ -11,6 +11,7 @@ class Section:
 
 
 class SectionSplitter:
+    # 常见英文章节名词表，用于标题识别。
     COMMON_HEADINGS = {
         "abstract",
         "introduction",
@@ -44,6 +45,7 @@ class SectionSplitter:
                 continue
 
             if self._is_heading(line):
+                # 遇到标题时先落盘上一段，再开启新段。
                 self._append_section(sections, current_title, buffer)
                 current_title = self._normalize_title(line)
                 buffer = []
@@ -63,6 +65,7 @@ class SectionSplitter:
             sections.append(Section(title=title, content=content))
 
     def _is_heading(self, line: str) -> bool:
+        # 过长文本或句末标点通常不是标题。
         if len(line) > 90:
             return False
         if line.endswith((".", ",", ";", ":")):

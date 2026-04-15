@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 
 @dataclass
 class PipelineState:
+    # 输入输出路径与各阶段中间结果，便于调试与落盘。
     input_path: str = ""
     output_path: str = ""
     document_text: str = ""

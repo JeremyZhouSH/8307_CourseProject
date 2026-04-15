@@ -14,6 +14,7 @@ class StructuredSummarizer:
         sections: list[Section],
         key_info: dict[str, list[str]],
     ) -> dict[str, object]:
+        # 每章取前若干句，作为可追溯的章节级摘要。
         section_summaries = [
             {
                 "section": section.title,

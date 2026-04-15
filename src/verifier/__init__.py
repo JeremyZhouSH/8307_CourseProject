@@ -1,1 +1,1 @@
-"""Verification utilities for summary support checks."""
+"""摘要支持性校验工具。"""

@@ -11,6 +11,7 @@ class PromptManager:
 
     @classmethod
     def from_yaml(cls, path: str | Path) -> "PromptManager":
+        # 统一把 YAML 值转成字符串，避免模板渲染时类型不一致。
         data = load_yaml(path)
         return cls({key: str(value) for key, value in data.items()})
 

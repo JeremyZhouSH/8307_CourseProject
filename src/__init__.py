@@ -1,1 +1,1 @@
-"""Scientific paper summarization agent package."""
+"""科研论文摘要代理主包。"""

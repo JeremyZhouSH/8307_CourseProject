@@ -1,1 +1,1 @@
-"""Summary generation modules."""
+"""摘要生成模块。"""

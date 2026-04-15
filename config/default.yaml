@@ -19,3 +19,18 @@ pipeline:
   min_sentence_chars: 30
   max_summary_sentences: 6
   use_llm_final_summary: true
+
+extractor:
+  strategy: ilp
+  role_tagger: crf
+  word_budget: 200
+  max_sentences_per_role: 2
+  redundancy_penalty: 0.35
+  similarity_threshold: 0.12
+  score_boost_section_match: 0.3
+  score_boost_role_confidence: 0.8
+  min_role_coverage:
+    objective: 1
+    methods: 1
+    results: 1
+    limitations: 1

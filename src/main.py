@@ -6,6 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
+    # 允许以 `python -m src.main` 方式从项目根目录导入模块。
     sys.path.insert(0, str(ROOT))
 
 from src.pipeline import SummarizationPipeline
@@ -24,6 +25,7 @@ def main() -> None:
     parser = build_arg_parser()
     args = parser.parse_args()
 
+    # CLI 参数仅覆盖输入/输出与配置路径，不改动内部流程。
     pipeline = SummarizationPipeline(config_path=args.config, prompts_path=args.prompts)
     state = pipeline.run(input_path=args.input_path, output_path=args.output_path)
 

@@ -7,7 +7,7 @@ from urllib import error, request
 
 
 class LLMClient:
-    """Minimal LLM client with mock mode and OpenAI-compatible HTTP mode."""
+    """最小可用 LLM 客户端：支持 mock 与 OpenAI 兼容接口。"""
 
     def __init__(
         self,
@@ -35,6 +35,7 @@ class LLMClient:
 
     def complete(self, prompt: str) -> str:
         if self.use_mock:
+            # mock 模式返回可读预览，便于离线调试。
             prefix = f"[MOCK:{self.model}]"
             preview = prompt.strip().replace("\n", " ")[:200]
             return f"{prefix} {preview}"
@@ -73,6 +74,7 @@ class LLMClient:
 
     def _chat_url(self) -> str:
         endpoint = self.chat_endpoint
+        # 防止 base_url 与 endpoint 同时带 /v1 导致重复路径。
         if self.base_url.endswith("/v1") and endpoint.startswith("/v1/"):
             endpoint = endpoint[3:]
         return f"{self.base_url}{endpoint}"
@@ -105,10 +107,12 @@ class LLMClient:
         return data
 
     def _extract_content(self, response: dict[str, Any]) -> str:
+        # 兼容 Responses 风格字段。
         output_text = response.get("output_text")
         if isinstance(output_text, str) and output_text.strip():
             return output_text.strip()
 
+        # 兼容 Chat Completions 风格字段。
         choices = response.get("choices")
         if not isinstance(choices, list) or not choices:
             return ""

@@ -1,1 +1,1 @@
-"""Parsing utilities for document ingestion and sectioning."""
+"""文档加载与章节切分工具。"""

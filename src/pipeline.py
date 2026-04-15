@@ -24,10 +24,12 @@ class SummarizationPipeline:
         config_path: str | Path = "config/default.yaml",
         prompts_path: str | Path = "config/prompts.yaml",
     ) -> None:
+        # 统一以项目根目录解析相对路径，避免工作目录差异影响运行。
         self.project_root = Path(__file__).resolve().parents[1]
         self.config_path = self._resolve_path(config_path)
         self.prompts_path = self._resolve_path(prompts_path)
 
+        # 配置与提示词在初始化阶段一次性加载。
         self.config: dict[str, Any] = load_yaml(self.config_path)
         self.prompts = PromptManager.from_yaml(self.prompts_path)
 
@@ -37,7 +39,11 @@ class SummarizationPipeline:
 
         self.loader = DocumentLoader()
         self.splitter = SectionSplitter(max_sections=int(self.config.get("max_sections", 20)))
-        self.extractor = KeyInfoExtractor()
+        extractor_cfg = dict(self.config.get("extractor", {}))
+        if "min_sentence_chars" not in extractor_cfg:
+            # 与旧配置兼容：若 extractor 未配置该参数，则沿用 pipeline 配置。
+            extractor_cfg["min_sentence_chars"] = int(pipeline_cfg.get("min_sentence_chars", 30))
+        self.extractor = KeyInfoExtractor(extractor_cfg=extractor_cfg)
         self.structured_summarizer = StructuredSummarizer(
             max_sentences=int(pipeline_cfg.get("max_summary_sentences", 2))
         )
@@ -73,6 +79,7 @@ class SummarizationPipeline:
     def _resolve_llm_config(self, llm_cfg: dict[str, Any]) -> dict[str, Any]:
         resolved = dict(llm_cfg)
 
+        # 通过 SMART_LLM__* 环境变量覆盖配置，方便本地切换模型与密钥。
         env_api_key = os.getenv("SMART_LLM__API_KEY", "").strip()
         env_base_url = os.getenv("SMART_LLM__BASE_URL", "").strip()
         env_model = os.getenv("SMART_LLM__MODEL_NAME", "").strip()
@@ -95,6 +102,7 @@ class SummarizationPipeline:
         return resolved
 
     def _build_llm_final_summary_prompt(self, structured_summary: dict[str, Any]) -> str:
+        # 结构化结果先序列化再注入 prompt，提升可追溯性。
         serialized = json.dumps(structured_summary, ensure_ascii=False, indent=2)
         return self.prompts.render("final_summary", structured_summary=serialized)
 
@@ -122,6 +130,7 @@ class SummarizationPipeline:
         state.input_path = str(resolved_input)
         state.output_path = str(resolved_output)
 
+        # 主流程：加载 -> 切分 -> 抽取 -> 结构化摘要 -> 最终摘要 -> 校验 -> 落盘。
         state.document_text = self.loader.load(resolved_input)
         state.sections = self.splitter.split(state.document_text)
 
@@ -137,7 +146,7 @@ class SummarizationPipeline:
                 if llm_summary:
                     state.final_summary = llm_summary
             except Exception:
-                # Keep deterministic fallback summary when external LLM call fails.
+                # 外部 LLM 失败时保留本地确定性摘要，保证流程稳定返回。
                 pass
         state.verification = self.verifier.check(
             final_summary=state.final_summary,

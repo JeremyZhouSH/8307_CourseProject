@@ -5,12 +5,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
+    # 让脚本在仓库任意位置执行时都能找到 src 包。
     sys.path.insert(0, str(ROOT))
 
 from src.pipeline import SummarizationPipeline
 
 
 def main() -> None:
+    # demo 使用默认配置跑完整流水线。
     pipeline = SummarizationPipeline()
     state = pipeline.run()
 
