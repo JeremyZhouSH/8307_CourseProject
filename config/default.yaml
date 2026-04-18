@@ -5,6 +5,7 @@ max_sections: 20
 
 llm:
   use_mock: true
+  provider: openai_compatible
   #model: local-mock
   model: deepseek-chat
   api_key_env: OPENAI_API_KEY
@@ -34,3 +35,9 @@ extractor:
     methods: 1
     results: 1
     limitations: 1
+
+agent:
+  max_steps: 24
+  retry_limit: 1
+  min_faithfulness: 0.65
+  memory_path: data/outputs/agent_memory.jsonl

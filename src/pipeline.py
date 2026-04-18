@@ -54,6 +54,7 @@ class SummarizationPipeline:
         self.llm_client = LLMClient(
             use_mock=bool(llm_cfg.get("use_mock", True)),
             model=str(llm_cfg.get("model", "local-mock")),
+            provider=str(llm_cfg.get("provider", "openai_compatible")),
             api_key=str(llm_cfg.get("api_key")) if llm_cfg.get("api_key") else None,
             api_key_env=str(llm_cfg.get("api_key_env", "OPENAI_API_KEY")),
             base_url=str(llm_cfg.get("base_url", "https://api.openai.com/v1")),
@@ -62,6 +63,11 @@ class SummarizationPipeline:
             system_prompt=str(llm_cfg.get("system_prompt", "")) or None,
             temperature=float(llm_cfg.get("temperature", 0.0)),
             max_tokens=max_tokens,
+            local_max_input_length=int(llm_cfg.get("local_max_input_length", 2048)),
+            local_max_new_tokens=int(llm_cfg.get("local_max_new_tokens", 256)),
+            local_device_map=str(llm_cfg.get("local_device_map", "auto")),
+            local_torch_dtype=str(llm_cfg.get("local_torch_dtype", "auto")),
+            local_trust_remote_code=bool(llm_cfg.get("local_trust_remote_code", False)),
         )
 
     def _resolve_path(self, path_value: str | Path) -> Path:
@@ -83,6 +89,7 @@ class SummarizationPipeline:
         env_api_key = os.getenv("SMART_LLM__API_KEY", "").strip()
         env_base_url = os.getenv("SMART_LLM__BASE_URL", "").strip()
         env_model = os.getenv("SMART_LLM__MODEL_NAME", "").strip()
+        env_provider = os.getenv("SMART_LLM__PROVIDER", "").strip()
         env_use_mock = os.getenv("SMART_LLM__USE_MOCK", "").strip().lower()
 
         if env_api_key:
@@ -93,6 +100,8 @@ class SummarizationPipeline:
             resolved["base_url"] = env_base_url
         if env_model:
             resolved["model"] = env_model
+        if env_provider:
+            resolved["provider"] = env_provider
 
         if env_use_mock in {"1", "true", "yes", "on"}:
             resolved["use_mock"] = True
@@ -116,6 +125,7 @@ class SummarizationPipeline:
         input_path: str | Path | None = None,
         output_path: str | Path | None = None,
     ) -> PipelineState:
+        # Step 0. 初始化运行状态，并解析输入输出路径。
         state = PipelineState()
 
         resolved_input = self._resolve_io_path(
@@ -130,16 +140,21 @@ class SummarizationPipeline:
         state.input_path = str(resolved_input)
         state.output_path = str(resolved_output)
 
-        # 主流程：加载 -> 切分 -> 抽取 -> 结构化摘要 -> 最终摘要 -> 校验 -> 落盘。
+        # Step 1. 读取原文并按章节切分。
         state.document_text = self.loader.load(resolved_input)
         state.sections = self.splitter.split(state.document_text)
 
+        # Step 2. 抽取 objective/methods/results/limitations 等关键信息。
         state.key_info = self.extractor.extract(state.sections)
+
+        # Step 3. 生成结构化摘要与本地最终摘要。
         state.structured_summary = self.structured_summarizer.summarize(
             state.sections,
             state.key_info,
         )
         state.final_summary = self.final_summarizer.summarize(state.structured_summary)
+
+        # Step 4. 可选：若启用真实 LLM，则用 LLM 重写最终摘要。
         if self.use_llm_final_summary and not self.llm_client.use_mock:
             try:
                 llm_summary = self._generate_final_summary_with_llm(state.structured_summary)
@@ -148,12 +163,15 @@ class SummarizationPipeline:
             except Exception:
                 # 外部 LLM 失败时保留本地确定性摘要，保证流程稳定返回。
                 pass
+
+        # Step 5. 对最终摘要做支持性（faithfulness）启发式校验。
         state.verification = self.verifier.check(
             final_summary=state.final_summary,
             key_info=state.key_info,
             document_text=state.document_text,
         )
 
+        # Step 6. 组装输出并写入 JSON 文件。
         payload = {
             "input_path": state.input_path,
             "sections": [asdict(section) for section in state.sections],

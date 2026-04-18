@@ -125,3 +125,24 @@ def test_complete_real_branch_avoids_double_v1_in_url(
 
     assert result == "ok"
     assert captured["url"] == "https://api.deepseek.com/v1/chat/completions"
+
+
+def test_complete_hf_local_branch_does_not_require_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    client = LLMClient(
+        use_mock=False,
+        provider="hf_local",
+        model="medical-model-local",
+        api_key_env="OPENAI_API_KEY_FOR_TEST",
+    )
+
+    monkeypatch.setattr(client, "_complete_local", lambda prompt: "local medical summary")
+
+    result = client.complete("Summarize this paper.")
+    assert result == "local medical summary"
+
+
+def test_complete_raises_for_unsupported_provider() -> None:
+    client = LLMClient(use_mock=False, provider="unknown-provider", model="x")
+
+    with pytest.raises(ValueError, match="Unsupported LLM provider"):
+        client.complete("ping")

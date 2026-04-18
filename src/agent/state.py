@@ -18,3 +18,17 @@ class PipelineState:
     structured_summary: dict[str, Any] = field(default_factory=dict)
     final_summary: str = ""
     verification: dict[str, Any] = field(default_factory=dict)
+    step_history: list[dict[str, Any]] = field(default_factory=list)
+    retry_count: int = 0
+    should_try_llm: bool = False
+    llm_summary_attempted: bool = False
+    output_written: bool = False
+    extractor_strategy: str = "unknown"
+    agent_finished: bool = False
+    user_request: str = ""
+    needs_clarification: bool = False
+    clarification_question: str = ""
+    clarification_request: dict[str, Any] = field(default_factory=dict)
+    memory_hits: list[dict[str, Any]] = field(default_factory=list)
+    clarification_checked: bool = False
+    strategy_adapted: bool = False

@@ -1,0 +1,2430 @@
+To continue this session, run codex resume 019d90b1-2c44-7273-a426-c1778404c12a
+Last login: Mon Apr 13 22:49:01 on ttys000
+source ~/.bash_profile
+(base) zhouxinyu@zhouxinyudeMacBook-Pro-128 ~ % source ~/.bash_profile
+(base) zhouxinyu@zhouxinyudeMacBook-Pro-128 ~ % conda activate handsonRL
+(handsonRL) zhouxinyu@zhouxinyudeMacBook-Pro-128 ~ % cd '/Users/zhouxinyu/Desktop/HKU sem2/8307/8307_CourseProject'
+(handsonRL) zhouxinyu@zhouxinyudeMacBook-Pro-128 8307_CourseProject % codex
+
+Updating Codex via `npm install -g @openai/codex`...
+
+changed 2 packages in 56s
+npm notice
+npm notice New minor version of npm available! 11.9.0 -> 11.12.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.12.1
+npm notice To update run: npm install -g npm@11.12.1
+npm notice
+
+🎉 Update ran successfully! Please restart Codex.
+(handsonRL) zhouxinyu@zhouxinyudeMacBook-Pro-128 8307_CourseProject % codex
+╭───────────────────────────────────────────────────────╮
+│ >_ OpenAI Codex (v0.120.0)                            │
+│                                                       │
+│ model:     gpt-5.3-codex xhigh   /model to change     │
+│ directory: ~/Desktop/HKU sem2/8307/8307_CourseProject │
+╰───────────────────────────────────────────────────────╯
+
+  Tip: New Use /fast to enable our fastest inference at 2X plan usage.
+
+
+› 描述这个文件夹
+
+
+• 我会先快速扫描当前目录的顶层结构和关键文件，再给你一个清晰的中文概览（项目类
+  型、主要子目录、以及每部分大概用途）。
+
+• Ran pwd && ls -la
+  └ /Users/zhouxinyu/Desktop/HKU sem2/8307/8307_CourseProject
+    total 48
+    … +14 lines (ctrl + t to view transcript)
+    drwxr-xr-x  13 zhouxinyu  staff   416 Apr 13 19:51 src
+    drwxr-xr-x   6 zhouxinyu  staff   192 Apr  2 21:14 tests
+
+• Explored
+  └ List .
+    List rg --files
+
+────────────────────────────────────────────────────────────────────────────────
+
+• 我已经拿到目录树，接下来会读 README.md 和配置文件，确认这是做什么的，再按“用途
+  + 结构”给你描述。
+
+• Explored
+  └ Read README.md
+
+• Ran sed -n '1,220p' requirements.txt && echo '---' && sed -n '1,220p' config/
+  │ default.yaml
+  └ PyYAML>=6.0,<7.0
+    pytest>=8.0,<9.0
+    … +21 lines (ctrl + t to view transcript)
+      max_summary_sentences: 6
+      use_llm_final_summary: true
+
+────────────────────────────────────────────────────────────────────────────────
+
+• 我已确认这是一个 Python 的科研论文总结项目。再补一眼 src/ 具体模块后，我会给你
+  按目录逐项说明。
+
+• Explored
+  └ List src
+
+────────────────────────────────────────────────────────────────────────────────
+
+• 这是一个 Python 课程项目仓库，用于“科研论文自动总结代理（summarization
+  agent）”。
+
+  当前目录：/Users/zhouxinyu/Desktop/HKU sem2/8307/8307_CourseProject
+  整体规模：约 35 个主要文件（不含 .git 内部对象）。
+
+  - 项目说明与结构定义在 README.md
+  - 配置在 config/：如 config/default.yaml、config/prompts.yaml
+  - 数据在 data/：样例输入 data/samples/、输出目录 data/outputs/
+  - 核心代码在 src/：
+      - 入口 src/main.py
+      - 流水线 src/pipeline.py
+      - 模块分为 parser/, extractor/, summarizer/, verifier/, llm/, agent/,
+        utils/
+  - 脚本在 scripts/：如 scripts/run_demo.py、scripts/evaluate.py
+  - 测试在 tests/：test_parser.py, test_pipeline.py, test_llm_client.py
+  - 文档在 docs/：literature_review.md, experiment_notes.md
+  - 依赖较轻，在 requirements.txt（PyYAML, pytest, datasets）
+
+
+› 如何做
+
+
+■ Conversation interrupted - tell the model what to do differently. Something
+went wrong? Hit `/feedback` to report the issue.
+
+
+› 如何做数据预处理
+
+
+• 我先看这个仓库里“预处理”相关的现有实现（data/、parser/、pipeline），然后给你一
+  套可直接执行的步骤。
+
+• Explored
+  └ Read data.py, pipeline.py
+
+• Ran sed -n '1,260p' src/parser/document_loader.py && echo '---' && sed -n
+  │ '1,260p' src/parser/section_splitter.py
+  └ from __future__ import annotations
+
+    … +98 lines (ctrl + t to view transcript)
+                return title.title()
+            return title
+
+────────────────────────────────────────────────────────────────────────────────
+
+• 我看完了：这个项目里“预处理”分两层，src/ 是论文文本预处理流程，data/data.py 是
+  数据集级别的 token 长度统计。再读一下入口脚本后我给你最实用的操作清单。
+
+• Explored
+  └ Read main.py
+
+• Ran sed -n '1,260p' scripts/run_demo.py && echo '---' && sed -n '1,260p'
+  │ scripts/evaluate.py
+  └ from __future__ import annotations
+
+    … +57 lines (ctrl + t to view transcript)
+    if __name__ == "__main__":
+        main()
+
+• Ran sed -n '1,260p' src/extractor/key_info_extractor.py && echo '---' && sed
+  │ -n '1,260p' src/summarizer/structured_summarizer.py
+  └ from __future__ import annotations
+
+    … +90 lines (ctrl + t to view transcript)
+    sentence.strip()][: self.max_sentences]
+            return " ".join(selected)
+
+────────────────────────────────────────────────────────────────────────────────
+
+• 我会把“预处理”拆成你这个项目里的两种场景（单篇论文输入、数据集批量预处理），并
+  按现有代码给出具体命令和文件位置。先取一下关键代码的行号，方便你定位。
+
+• Explored
+  └ Read section_splitter.py, data.py, pipeline.py
+    Search preprocess|预处理|token|section|load_dataset|sample_paper in src
+    Read sample_paper.txt
+
+────────────────────────────────────────────────────────────────────────────────
+
+• 在这个仓库里，数据预处理可以按这套做（基于现有实现）：
+
+  1. 把原始论文转成纯文本 txt（UTF-8），放到 data/samples/。
+  2. 按章节整理格式（这是关键）：
+
+  - 标题单独一行，例如 ABSTRACT、1 INTRODUCTION
+  - 标题行不要以 . , ; : 结尾
+  - 每段正常换行，章节间留空行
+    这些规则来自 src/parser/section_splitter.py:65。
+
+  3. 运行流水线（会自动做“加载+分段+抽取”）：
+
+  python -m src.main --input data/samples/your_paper.txt --output data/outputs/
+  your_summary.json
+
+  入口预处理在 src/pipeline.py:125 和 src/pipeline.py:126。
+
+  4. 检查预处理效果：看输出 JSON 的 sections 是否切分正确（data/outputs/
+     *.json）。
+
+  如果你说的是“数据集级别预处理”（长度统计），可以跑 data/data.py:8：
+
+  export HF_TOKEN=你的token
+  pip install transformers datasets numpy
+  python data/data.py
+
+  它会统计 article/abstract token 分布，用来定截断长度。
+
+
+› 还有没有其他算法
+
+
+• 有，除了你现在的规则法，还可以用这些：
+
+  1. 章节切分
+     TextTiling/TopicTiling，或“句向量相似度突变点分段”（embedding + change
+     point）。
+     适合替换 src/parser/section_splitter.py。
+  2. 长文切块
+     token 滑动窗口 + overlap（如 1024/128），比硬截断更稳。
+     可加在 src/pipeline.py 的 loader 后、extractor 前。
+  3. 去噪/去重
+     Unicode 归一化 + 页眉页脚清洗 + MinHash/SimHash 段落去重。
+     适合做成独立 preprocess 模块。
+  4. 关键信息抽取
+     TextRank、YAKE、KeyBERT、BM25+MMR 句子选择。
+     可替换 src/extractor/key_info_extractor.py。
+
+  如果你要“课程项目里好实现、效果明显”的组合，我建议先上：滑窗切块 + TextRank。
+  我可以直接帮你改到仓库里。
+
+
+› 基于统计学理论的算法有吗
+
+
+• 有，而且很适合你这个项目（可解释、实现成本低）。
+
+  1. TF-IDF 句子打分
+     用词频和逆文档频率估计句子信息量，选高分句。
+  2. LexRank / TextRank
+     把句子构图，用中心性选“最代表全文”的句子（纯统计图方法）。
+  3. KL-divergence Summarization
+     贪心选句，让摘要词分布尽量逼近原文词分布（信息论统计）。
+  4. LDA / pLSA
+     用概率主题模型提取主题，再按主题覆盖挑摘要句。
+  5. MMR (Maximal Marginal Relevance)
+     在“相关性”和“去冗余”之间做统计权衡，减少重复句。
+  6. Bayesian Change Point / HMM
+     用于章节或主题边界检测，比纯规则分段更稳。
+  7. Z-score / IQR
+     用于预处理阶段过滤异常长度样本或噪声段落。
+
+  如果你要我直接改仓库，建议先上这两个：TF-IDF + LexRank（替换关键句抽取）和
+  MMR（去重），基本不依赖大模型。
+
+
+› 还有其他的方法吗
+
+
+• 有，再补几种偏统计/经典的方法（都不依赖大模型）：
+
+  1. Luhn 摘要法
+     按高频词分布给句子打分，简单但常有效。
+  2. SumBasic
+     用词出现概率迭代选句，偏“高覆盖率”。
+  3. Centroid-based Summarization
+     先算文档中心向量（TF-IDF），再选最接近中心的句子。
+  4. LSA (SVD)
+     用奇异值分解提取潜在主题，再按主题贡献选句。
+  5. KL-Sum
+     最小化“摘要词分布 vs 原文词分布”的 KL 散度。
+  6. ILP 最优化选句
+     把“信息覆盖最大 + 长度约束 + 冗余惩罚”写成整数规划。
+  7. Submodular 选句
+     用次模函数做“覆盖+多样性”贪心优化，有理论近似保证。
+  8. CRF/HMM 句子角色标注
+     先识别句子是背景/方法/结果，再按角色配额抽取摘要。
+
+  如果你愿意，我可以按你这个仓库直接给出“最容易落地”的 2 个方案和改动点。
+
+
+› 用[200~ILP 最优化选句和CRF/HMM 句子角色标注 该如何实现
+
+
+• 可以，这个组合最稳的实现顺序是：CRF/HMM先做句子角色标注，再用ILP在200词约束下选句。
+
+  1. 先定义标签集
+     {objective, methods, results, limitations, other}。
+     每篇论文先切句（你现有 splitter 可复用）。
+  2. 训练 CRF（推荐，通常比 HMM 更好）
+
+  - 训练样本：可先用章节标题弱标注（Introduction→objective，Methods→methods 等）
+  - 特征：句子位置、长度、数字占比、TF-IDF关键词、section标题、前后句特征
+  - 工具：sklearn-crfsuite
+  - 输出：每句角色概率 P(role|sentence, context)
+
+  3. HMM 备选（若你要纯生成式）
+
+  - 状态=角色标签，观测=离散化句子特征
+  - 训练可用监督初始化+EM微调
+  - 实务上在这类任务通常 CRF 更稳。
+
+  4. 构建 ILP（200词预算）
+     设每句二元变量 x_i∈{0,1}，句长 len_i，得分 score_i，相似度 sim_ij。
+     目标：max Σ score_i x_i - λ Σ sim_ij z_ij
+     约束：
+
+  - Σ len_i x_i <= 200
+  - 各角色配额，如 Σ_{i in methods} x_i >= 1（objective/results 同理）
+  - 线性化冗余项：z_ij<=x_i, z_ij<=x_j, z_ij>=x_i+x_j-1
+
+  5. 代码落地到你仓库
+
+  - 新增 src/extractor/role_tagger_crf.py
+  - 新增 src/extractor/ilp_sentence_selector.py
+  - 改造 src/extractor/key_info_extractor.py 调用“角色标注+ILP选句”
+  - 在 config/default.yaml 加：summary_word_budget: 200, min_role_coverage 等参数。
+
+  如果你要，我可以下一步直接把这3个文件和配置改好，并给你一版可运行的最小实现（CRF + PuLP）。
+
+
+› 这些新增的代码都是什么
+
+
+• 目前还没有真正写入这些新增代码；我上条给的是实现设计。
+  如果你要，我可以下一步直接把它们落地到仓库。
+
+  你提到的“新增代码”具体是这几块：
+
+  1. role_tagger_crf.py（句子角色标注）
+
+  - 输入：论文切句结果（句子文本、章节名、句子位置）
+  - 处理：提取特征（位置、长度、关键词、数字比例、标题提示词等）
+  - 输出：每句的角色标签和概率（objective/methods/results/limitations/other）
+  - 典型接口：fit(train_docs)、predict(doc)、predict_proba(doc)
+
+  2. ilp_sentence_selector.py（ILP选句，200词约束）
+
+  - 输入：句子列表、每句得分、句长、句间相似度、角色标签
+  - 处理：建立二元变量 x_i，加预算约束 sum(len_i*x_i)<=200 和角色覆盖约束
+  - 目标：最大化“信息分数 - 冗余惩罚”
+  - 输出：被选句子的索引和最终摘要文本
+
+  3. 改造现有抽取器 src/extractor/key_info_extractor.py
+
+  - 现在是规则抽取；改后会变成：
+      - 先 CRF/HMM 给句子打角色
+      - 再 ILP 在200词内选句
+      - 失败时回退到当前规则逻辑（保证稳）
+
+  4. 配置扩展 config/default.yaml
+
+  - summary_word_budget: 200
+  - role_min_coverage（每类至少几句）
+  - ilp_lambda_redundancy
+  - role_tagger_model_path
+
+  5. 依赖
+
+  - sklearn-crfsuite（CRF）
+  - pulp（ILP求解）
+
+  如果你确认，我就按这5部分直接写一版可运行代码。
+
+ 
+› Improve documentation in @filename
+ 
+  esc again to edit previous message
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+› 写一版代码
+
+
+• 我会直接落地一版可运行实现：新增 CRF/HMM角色标注 + ILP选句（200词预算），并把
+  它接入现有 KeyInfoExtractor，同时保持原规则回退。先检查当前测试和摘要模块约
+  束，再开始改代码。
+
+• Explored
+  └ Read final_summarizer.py
+
+• Ran sed -n '1,260p' src/agent/state.py && echo '---' && sed -n '1,260p' src/
+  │ verifier/faithfulness_checker.py
+  └ from __future__ import annotations
+
+    … +51 lines (ctrl + t to view transcript)
+            return {token for token in re.findall(r"[A-Za-z][A-Za-z\-]{1,}",
+    text.lower())}
+
+• Ran sed -n '1,260p' tests/test_pipeline.py && echo '---' && sed -n '1,260p'
+  │ tests/test_parser.py && echo '---' && sed -n '1,260p' tests/
+  │ test_llm_client.py
+  └ from __future__ import annotations
+
+    … +224 lines (ctrl + t to view transcript)
+        assert result == "ok"
+        assert captured["url"] == "https://api.deepseek.com/v1/chat/completions"
+
+────────────────────────────────────────────────────────────────────────────────
+
+• 我已经确认现有测试约束，下一步会新增两个模块并改 key_info_extractor：即使未安
+  装 sklearn-crfsuite/pulp 也能自动回退，不会影响现有流水线可用性。
+
+• Explored
+  └ Read default.yaml, io.py, __init__.py
+
+─ Worked for 1m 13s ────────────────────────────────────────────────────────────
+
+• 我开始改代码了：先新增 role_tagger_crf.py 和 ilp_sentence_selector.py，再重写
+  key_info_extractor.py 接入新流程，最后更新配置并补测试。
+
+• Added src/extractor/role_tagger_crf.py (+405 -0)
+      1 +from __future__ import annotations
+      2 +
+      3 +import math
+      4 +import re
+      5 +from dataclasses import dataclass
+      6 +from typing import Sequence
+      7 +
+      8 +from src.parser.section_splitter import Section
+      9 +
+     10 +try:
+     11 +    import sklearn_crfsuite  # type: ignore[import-not-found]
+     12 +except Exception:  # pragma: no cover - optional dependency
+     13 +    sklearn_crfsuite = None
+     14 +
+     15 +
+     16 +ROLES: tuple[str, ...] = ("objective", "methods", "results", "limitatio
+         ns", "other")
+     17 +
+     18 +
+     19 +@dataclass
+     20 +class SentenceUnit:
+     21 +    text: str
+     22 +    section_title: str
+     23 +    section_index: int
+     24 +    sentence_index: int
+     25 +    global_index: int
+     26 +    total_sentences: int
+     27 +
+     28 +
+     29 +@dataclass
+     30 +class TaggedSentence:
+     31 +    text: str
+     32 +    section_title: str
+     33 +    role: str
+     34 +    role_scores: dict[str, float]
+     35 +    global_index: int
+     36 +    word_count: int
+     37 +
+     38 +
+     39 +class SentenceRoleTagger:
+     40 +    SECTION_BUCKETS = {
+     41 +        "objective": {"abstract", "introduction", "background", "motiva
+         tion"},
+     42 +        "methods": {"method", "methods", "approach", "framework"},
+     43 +        "results": {"result", "results", "experiment", "experiments", "
+         evaluation"},
+     44 +        "limitations": {"limitation", "limitations", "discussion", "fut
+         ure work", "conclusion"},
+     45 +    }
+     46 +
+     47 +    ROLE_KEYWORDS = {
+     48 +        "objective": {
+     49 +            "objective",
+     50 +            "aim",
+     51 +            "goal",
+     52 +            "motivation",
+     53 +            "problem",
+     54 +            "propose",
+     55 +            "introduce",
+     56 +            "investigate",
+     57 +        },
+     58 +        "methods": {
+     59 +            "method",
+     60 +            "approach",
+     61 +            "pipeline",
+     62 +            "framework",
+     63 +            "algorithm",
+     64 +            "model",
+     65 +            "train",
+     66 +            "dataset",
+     67 +        },
+     68 +        "results": {
+     69 +            "result",
+     70 +            "improve",
+     71 +            "outperform",
+     72 +            "accuracy",
+     73 +            "f1",
+     74 +            "performance",
+     75 +            "experiment",
+     76 +            "show",
+     77 +        },
+     78 +        "limitations": {
+     79 +            "limitation",
+     80 +            "future",
+     81 +            "weakness",
+     82 +            "challenge",
+     83 +            "cannot",
+     84 +            "however",
+     85 +            "although",
+     86 +            "risk",
+     87 +        },
+     88 +    }
+     89 +
+     90 +    def __init__(self, method: str = "crf") -> None:
+     91 +        self.method = method.lower().strip()
+     92 +
+     93 +    def tag_sections(self, sections: list[Section]) -> list[TaggedSente
+         nce]:
+     94 +        units = self._build_sentence_units(sections)
+     95 +        if not units:
+     96 +            return []
+     97 +
+     98 +        predictions = self._predict(units)
+     99 +        tagged: list[TaggedSentence] = []
+    100 +        for unit, (role, scores) in zip(units, predictions):
+    101 +            tagged.append(
+    102 +                TaggedSentence(
+    103 +                    text=unit.text,
+    104 +                    section_title=unit.section_title,
+    105 +                    role=role,
+    106 +                    role_scores=scores,
+    107 +                    global_index=unit.global_index,
+    108 +                    word_count=self._word_count(unit.text),
+    109 +                )
+    110 +            )
+    111 +        return tagged
+    112 +
+    113 +    def _predict(self, units: list[SentenceUnit]) -> list[tuple[str, di
+         ct[str, float]]]:
+    114 +        if self.method == "crf":
+    115 +            crf_result = self._predict_with_crf(units)
+    116 +            if crf_result is not None:
+    117 +                return crf_result
+    118 +            hmm_result = self._predict_with_hmm(units)
+    119 +            if hmm_result is not None:
+    120 +                return hmm_result
+    121 +            return self._predict_with_heuristic(units)
+    122 +
+    123 +        if self.method == "hmm":
+    124 +            hmm_result = self._predict_with_hmm(units)
+    125 +            if hmm_result is not None:
+    126 +                return hmm_result
+    127 +            return self._predict_with_heuristic(units)
+    128 +
+    129 +        return self._predict_with_heuristic(units)
+    130 +
+    131 +    def _predict_with_crf(self, units: list[SentenceUnit]) -> list[tupl
+         e[str, dict[str, float]]] | None:
+    132 +        if sklearn_crfsuite is None:
+    133 +            return None
+    134 +        if len(units) < 3:
+    135 +            return None
+    136 +
+    137 +        weak_labels = [self._weak_label(unit) for unit in units]
+    138 +        if len(set(weak_labels)) < 2:
+    139 +            return None
+    140 +
+    141 +        features = [self._sentence_features(units, idx) for idx in rang
+         e(len(units))]
+    142 +
+    143 +        model = sklearn_crfsuite.CRF(
+    144 +            algorithm="lbfgs",
+    145 +            c1=0.1,
+    146 +            c2=0.1,
+    147 +            max_iterations=40,
+    148 +            all_possible_transitions=True,
+    149 +        )
+    150 +        model.fit([features], [weak_labels])
+    151 +
+    152 +        labels = model.predict_single(features)
+    153 +        marginals = model.predict_marginals_single(features)
+    154 +        predictions: list[tuple[str, dict[str, float]]] = []
+    155 +        for label, marginal in zip(labels, marginals):
+    156 +            scores = {role: float(marginal.get(role, 0.0)) for role in
+         ROLES}
+    157 +            predictions.append((label if label in ROLES else "other", s
+         elf._normalize_scores(scores)))
+    158 +        return predictions
+    159 +
+    160 +    def _predict_with_hmm(self, units: list[SentenceUnit]) -> list[tupl
+         e[str, dict[str, float]]] | None:
+    161 +        if not units:
+    162 +            return None
+    163 +
+    164 +        transitions = self._transition_log_probs()
+    165 +        start_log_probs = self._start_log_probs()
+    166 +
+    167 +        emissions = [self._heuristic_scores(unit) for unit in units]
+    168 +        dp: list[dict[str, float]] = []
+    169 +        backpointer: list[dict[str, str]] = []
+    170 +
+    171 +        first_scores: dict[str, float] = {}
+    172 +        first_backpointer: dict[str, str] = {}
+    173 +        for role in ROLES:
+    174 +            emission = max(emissions[0].get(role, 1e-9), 1e-9)
+    175 +            first_scores[role] = start_log_probs[role] + math.log(emiss
+         ion)
+    176 +            first_backpointer[role] = ""
+    177 +        dp.append(first_scores)
+    178 +        backpointer.append(first_backpointer)
+    179 +
+    180 +        for index in range(1, len(units)):
+    181 +            current_scores: dict[str, float] = {}
+    182 +            current_backpointer: dict[str, str] = {}
+    183 +            for role in ROLES:
+    184 +                emission = max(emissions[index].get(role, 1e-9), 1e-9)
+    185 +                emission_log = math.log(emission)
+    186 +                best_prev = ROLES[0]
+    187 +                best_score = float("-inf")
+    188 +                for prev_role in ROLES:
+    189 +                    score = dp[index - 1][prev_role] + transitions[prev
+         _role][role] + emission_log
+    190 +                    if score > best_score:
+    191 +                        best_score = score
+    192 +                        best_prev = prev_role
+    193 +                current_scores[role] = best_score
+    194 +                current_backpointer[role] = best_prev
+    195 +            dp.append(current_scores)
+    196 +            backpointer.append(current_backpointer)
+    197 +
+    198 +        path = [max(dp[-1], key=dp[-1].get)]
+    199 +        for index in range(len(units) - 1, 0, -1):
+    200 +            path.append(backpointer[index][path[-1]])
+    201 +        path.reverse()
+    202 +
+    203 +        predictions: list[tuple[str, dict[str, float]]] = []
+    204 +        for role, emission in zip(path, emissions):
+    205 +            predictions.append((role, emission))
+    206 +        return predictions
+    207 +
+    208 +    def _predict_with_heuristic(self, units: list[SentenceUnit]) -> lis
+         t[tuple[str, dict[str, float]]]:
+    209 +        output: list[tuple[str, dict[str, float]]] = []
+    210 +        for unit in units:
+    211 +            scores = self._heuristic_scores(unit)
+    212 +            label = max(scores, key=scores.get)
+    213 +            output.append((label, scores))
+    214 +        return output
+    215 +
+    216 +    def _sentence_features(self, units: Sequence[SentenceUnit], index:
+         int) -> dict[str, object]:
+    217 +        unit = units[index]
+    218 +        lower = unit.text.lower()
+    219 +        words = re.findall(r"[A-Za-z][A-Za-z\-]{1,}", lower)
+    220 +        section_lower = unit.section_title.lower()
+    221 +
+    222 +        feature: dict[str, object] = {
+    223 +            "bias": 1.0,
+    224 +            "word_count": len(words),
+    225 +            "char_count": len(unit.text),
+    226 +            "contains_digit": any(ch.isdigit() for ch in unit.text),
+    227 +            "has_percent": "%" in unit.text,
+    228 +            "sentence_pos_bin": self._position_bin(unit.global_index, u
+         nit.total_sentences),
+    229 +            "section_title": section_lower,
+    230 +            "section_hint": self._bucket_for_title(unit.section_title)
+         or "none",
+    231 +            "lower[:20]": lower[:20],
+    232 +            "endswith_colon": unit.text.strip().endswith(":"),
+    233 +        }
+    234 +
+    235 +        for role in ("objective", "methods", "results", "limitations"):
+    236 +            feature[f"kw_count_{role}"] = self._keyword_hits(lower, rol
+         e)
+    237 +            feature[f"section_is_{role}"] = int((self._bucket_for_title
+         (unit.section_title) or "other") == role)
+    238 +
+    239 +        if index > 0:
+    240 +            prev = units[index - 1]
+    241 +            feature["-1:section_hint"] = self._bucket_for_title(prev.se
+         ction_title) or "none"
+    242 +            feature["-1:word_count"] = self._word_count(prev.text)
+    243 +        else:
+    244 +            feature["BOS"] = True
+    245 +
+    246 +        if index + 1 < len(units):
+    247 +            nxt = units[index + 1]
+    248 +            feature["+1:section_hint"] = self._bucket_for_title(nxt.sec
+         tion_title) or "none"
+    249 +            feature["+1:word_count"] = self._word_count(nxt.text)
+    250 +        else:
+    251 +            feature["EOS"] = True
+    252 +
+    253 +        return feature
+    254 +
+    255 +    def _heuristic_scores(self, unit: SentenceUnit) -> dict[str, float]
+         :
+    256 +        lower = unit.text.lower()
+    257 +        section_bucket = self._bucket_for_title(unit.section_title)
+    258 +        scores = {role: 0.05 for role in ROLES}
+    259 +
+    260 +        if section_bucket:
+    261 +            scores[section_bucket] += 0.45
+    262 +
+    263 +        for role in ("objective", "methods", "results", "limitations"):
+    264 +            hits = self._keyword_hits(lower, role)
+    265 +            scores[role] += min(0.4, 0.12 * hits)
+    266 +
+    267 +        position = unit.global_index / max(1, unit.total_sentences - 1)
+    268 +        if position <= 0.2:
+    269 +            scores["objective"] += 0.15
+    270 +        if 0.2 < position <= 0.6:
+    271 +            scores["methods"] += 0.1
+    272 +        if 0.5 <= position <= 0.9:
+    273 +            scores["results"] += 0.12
+    274 +        if position >= 0.75:
+    275 +            scores["limitations"] += 0.1
+    276 +
+    277 +        if self._word_count(unit.text) < 5:
+    278 +            scores["other"] += 0.25
+    279 +
+    280 +        return self._normalize_scores(scores)
+    281 +
+    282 +    def _transition_log_probs(self) -> dict[str, dict[str, float]]:
+    283 +        high = math.log(0.55)
+    284 +        medium = math.log(0.2)
+    285 +        low = math.log(0.08)
+    286 +        tiny = math.log(0.03)
+    287 +
+    288 +        return {
+    289 +            "objective": {
+    290 +                "objective": medium,
+    291 +                "methods": high,
+    292 +                "results": low,
+    293 +                "limitations": tiny,
+    294 +                "other": low,
+    295 +            },
+    296 +            "methods": {
+    297 +                "objective": tiny,
+    298 +                "methods": medium,
+    299 +                "results": high,
+    300 +                "limitations": low,
+    301 +                "other": low,
+    302 +            },
+    303 +            "results": {
+    304 +                "objective": tiny,
+    305 +                "methods": low,
+    306 +                "results": medium,
+    307 +                "limitations": high,
+    308 +                "other": low,
+    309 +            },
+    310 +            "limitations": {
+    311 +                "objective": tiny,
+    312 +                "methods": tiny,
+    313 +                "results": low,
+    314 +                "limitations": high,
+    315 +                "other": medium,
+    316 +            },
+    317 +            "other": {
+    318 +                "objective": low,
+    319 +                "methods": low,
+    320 +                "results": low,
+    321 +                "limitations": low,
+    322 +                "other": medium,
+    323 +            },
+    324 +        }
+    325 +
+    326 +    def _start_log_probs(self) -> dict[str, float]:
+    327 +        return {
+    328 +            "objective": math.log(0.45),
+    329 +            "methods": math.log(0.25),
+    330 +            "results": math.log(0.15),
+    331 +            "limitations": math.log(0.1),
+    332 +            "other": math.log(0.05),
+    333 +        }
+    334 +
+    335 +    def _build_sentence_units(self, sections: list[Section]) -> list[Se
+         ntenceUnit]:
+    336 +        units: list[SentenceUnit] = []
+    337 +        for section_index, section in enumerate(sections):
+    338 +            sentences = self._split_sentences(section.content)
+    339 +            for sentence_index, sentence in enumerate(sentences):
+    340 +                cleaned = sentence.strip()
+    341 +                if cleaned:
+    342 +                    units.append(
+    343 +                        SentenceUnit(
+    344 +                            text=cleaned,
+    345 +                            section_title=section.title,
+    346 +                            section_index=section_index,
+    347 +                            sentence_index=sentence_index,
+    348 +                            global_index=len(units),
+    349 +                            total_sentences=0,
+    350 +                        )
+    351 +                    )
+    352 +        total = len(units)
+    353 +        for idx, unit in enumerate(units):
+    354 +            unit.global_index = idx
+    355 +            unit.total_sentences = total
+    356 +        return units
+    357 +
+    358 +    def _weak_label(self, unit: SentenceUnit) -> str:
+    359 +        section_bucket = self._bucket_for_title(unit.section_title)
+    360 +        if section_bucket:
+    361 +            return section_bucket
+    362 +        scores = self._heuristic_scores(unit)
+    363 +        return max(scores, key=scores.get)
+    364 +
+    365 +    def _split_sentences(self, text: str) -> list[str]:
+    366 +        parts = re.split(r"(?<=[.!?])\s+", text.strip())
+    367 +        sentences = [part.strip() for part in parts if part.strip()]
+    368 +        if not sentences and text.strip():
+    369 +            return [text.strip()]
+    370 +        return sentences
+    371 +
+    372 +    def _bucket_for_title(self, title: str) -> str | None:
+    373 +        normalized = title.lower()
+    374 +        for bucket, hints in self.SECTION_BUCKETS.items():
+    375 +            if any(hint in normalized for hint in hints):
+    376 +                return bucket
+    377 +        return None
+    378 +
+    379 +    def _keyword_hits(self, sentence_lower: str, role: str) -> int:
+    380 +        keywords = self.ROLE_KEYWORDS.get(role, set())
+    381 +        return sum(1 for keyword in keywords if keyword in sentence_low
+         er)
+    382 +
+    383 +    def _position_bin(self, index: int, total: int) -> str:
+    384 +        if total <= 1:
+    385 +            return "single"
+    386 +        ratio = index / (total - 1)
+    387 +        if ratio < 0.2:
+    388 +            return "very_early"
+    389 +        if ratio < 0.4:
+    390 +            return "early"
+    391 +        if ratio < 0.6:
+    392 +            return "middle"
+    393 +        if ratio < 0.8:
+    394 +            return "late"
+    395 +        return "very_late"
+    396 +
+    397 +    def _word_count(self, text: str) -> int:
+    398 +        return len(re.findall(r"[A-Za-z0-9]+(?:-[A-Za-z0-9]+)?", text))
+    399 +
+    400 +    def _normalize_scores(self, scores: dict[str, float]) -> dict[str,
+         float]:
+    401 +        cleaned = {role: max(value, 1e-9) for role, value in scores.ite
+         ms()}
+    402 +        total = sum(cleaned.values())
+    403 +        if total <= 0:
+    404 +            return {role: 1.0 / len(ROLES) for role in ROLES}
+    405 +        return {role: cleaned.get(role, 0.0) / total for role in ROLES}
+
+─ Worked for 1m 08s ────────────────────────────────────────────────────────────
+
+• 第一个模块已加好。现在补 ILP 选句 模块，包含 PuLP 求解和无依赖贪心回退两条路
+  径。
+
+• Added src/extractor/ilp_sentence_selector.py (+188 -0)
+      1 +from __future__ import annotations
+      2 +
+      3 +import re
+      4 +from dataclasses import dataclass
+      5 +
+      6 +try:
+      7 +    import pulp  # type: ignore[import-not-found]
+      8 +except Exception:  # pragma: no cover - optional dependency
+      9 +    pulp = None
+     10 +
+     11 +
+     12 +@dataclass
+     13 +class SentenceCandidate:
+     14 +    sentence_id: int
+     15 +    text: str
+     16 +    role: str
+     17 +    score: float
+     18 +    word_count: int
+     19 +
+     20 +
+     21 +class ILPSentenceSelector:
+     22 +    ROLES: tuple[str, ...] = ("objective", "methods", "results", "limit
+         ations")
+     23 +
+     24 +    def __init__(
+     25 +        self,
+     26 +        word_budget: int = 200,
+     27 +        redundancy_penalty: float = 0.35,
+     28 +        similarity_threshold: float = 0.12,
+     29 +        min_role_coverage: dict[str, int] | None = None,
+     30 +    ) -> None:
+     31 +        self.word_budget = max(1, int(word_budget))
+     32 +        self.redundancy_penalty = max(0.0, float(redundancy_penalty))
+     33 +        self.similarity_threshold = max(0.0, float(similarity_threshold
+         ))
+     34 +        self.min_role_coverage = {
+     35 +            role: max(0, int((min_role_coverage or {}).get(role, 0))) f
+         or role in self.ROLES
+     36 +        }
+     37 +
+     38 +    def select(self, candidates: list[SentenceCandidate]) -> list[Sente
+         nceCandidate]:
+     39 +        filtered = [
+     40 +            candidate
+     41 +            for candidate in candidates
+     42 +            if candidate.word_count > 0 and candidate.word_count <= sel
+         f.word_budget and candidate.text.strip()
+     43 +        ]
+     44 +        if not filtered:
+     45 +            return []
+     46 +
+     47 +        chosen = self._select_with_ilp(filtered)
+     48 +        if chosen is None:
+     49 +            chosen = self._select_with_greedy(filtered)
+     50 +
+     51 +        return sorted(chosen, key=lambda candidate: candidate.sentence_
+         id)
+     52 +
+     53 +    def _select_with_ilp(self, candidates: list[SentenceCandidate]) ->
+         list[SentenceCandidate] | None:
+     54 +        if pulp is None:
+     55 +            return None
+     56 +
+     57 +        problem = pulp.LpProblem("summary_sentence_selection", pulp.LpM
+         aximize)
+     58 +        x_vars = {
+     59 +            candidate.sentence_id: pulp.LpVariable(
+     60 +                f"x_{candidate.sentence_id}",
+     61 +                lowBound=0,
+     62 +                upBound=1,
+     63 +                cat=pulp.LpBinary,
+     64 +            )
+     65 +            for candidate in candidates
+     66 +        }
+     67 +
+     68 +        problem += pulp.lpSum(
+     69 +            candidate.score * x_vars[candidate.sentence_id] for candida
+         te in candidates
+     70 +        ), "base_score"
+     71 +        problem += pulp.lpSum(
+     72 +            candidate.word_count * x_vars[candidate.sentence_id] for ca
+         ndidate in candidates
+     73 +        ) <= self.word_budget, "word_budget"
+     74 +
+     75 +        for role, min_count in self.min_role_coverage.items():
+     76 +            if min_count <= 0:
+     77 +                continue
+     78 +            role_candidates = [c for c in candidates if c.role == role]
+     79 +            if not role_candidates:
+     80 +                continue
+     81 +            bounded_min = min(min_count, len(role_candidates))
+     82 +            problem += (
+     83 +                pulp.lpSum(x_vars[c.sentence_id] for c in role_candidat
+         es) >= bounded_min
+     84 +            ), f"role_cover_{role}"
+     85 +
+     86 +        pair_vars: dict[tuple[int, int], tuple[float, object]] = {}
+     87 +        for left in range(len(candidates)):
+     88 +            for right in range(left + 1, len(candidates)):
+     89 +                sim = self._sentence_similarity(candidates[left].text,
+         candidates[right].text)
+     90 +                if sim < self.similarity_threshold:
+     91 +                    continue
+     92 +                cid_left = candidates[left].sentence_id
+     93 +                cid_right = candidates[right].sentence_id
+     94 +                z_var = pulp.LpVariable(
+     95 +                    f"z_{cid_left}_{cid_right}",
+     96 +                    lowBound=0,
+     97 +                    upBound=1,
+     98 +                    cat=pulp.LpBinary,
+     99 +                )
+    100 +                pair_vars[(cid_left, cid_right)] = (sim, z_var)
+    101 +                problem += z_var <= x_vars[cid_left], f"pair_l_{cid_lef
+         t}_{cid_right}"
+    102 +                problem += z_var <= x_vars[cid_right], f"pair_r_{cid_le
+         ft}_{cid_right}"
+    103 +                problem += z_var >= x_vars[cid_left] + x_vars[cid_right
+         ] - 1, (
+    104 +                    f"pair_lb_{cid_left}_{cid_right}"
+    105 +                )
+    106 +
+    107 +        if pair_vars:
+    108 +            penalty_term = pulp.lpSum(
+    109 +                self.redundancy_penalty * sim * var for sim, var in pai
+         r_vars.values()
+    110 +            )
+    111 +            problem += -penalty_term
+    112 +
+    113 +        status = problem.solve(pulp.PULP_CBC_CMD(msg=False))
+    114 +        status_name = pulp.LpStatus.get(status, "Unknown")
+    115 +        if status_name not in {"Optimal", "Feasible"}:
+    116 +            return None
+    117 +
+    118 +        selected: list[SentenceCandidate] = []
+    119 +        for candidate in candidates:
+    120 +            value = x_vars[candidate.sentence_id].value()
+    121 +            if value is not None and value >= 0.5:
+    122 +                selected.append(candidate)
+    123 +
+    124 +        if not selected:
+    125 +            return None
+    126 +        return selected
+    127 +
+    128 +    def _select_with_greedy(self, candidates: list[SentenceCandidate])
+         -> list[SentenceCandidate]:
+    129 +        selected: list[SentenceCandidate] = []
+    130 +        selected_ids: set[int] = set()
+    131 +        budget_left = self.word_budget
+    132 +
+    133 +        for role, min_count in self.min_role_coverage.items():
+    134 +            if min_count <= 0:
+    135 +                continue
+    136 +            role_candidates = [c for c in candidates if c.role == role
+         and c.sentence_id not in selected_ids]
+    137 +            role_candidates.sort(key=lambda c: c.score / max(1, c.word_
+         count), reverse=True)
+    138 +            for candidate in role_candidates:
+    139 +                if min_count <= 0:
+    140 +                    break
+    141 +                if candidate.word_count <= budget_left:
+    142 +                    selected.append(candidate)
+    143 +                    selected_ids.add(candidate.sentence_id)
+    144 +                    budget_left -= candidate.word_count
+    145 +                    min_count -= 1
+    146 +
+    147 +        remaining = [c for c in candidates if c.sentence_id not in sele
+         cted_ids]
+    148 +        remaining.sort(key=lambda c: c.score / max(1, c.word_count), re
+         verse=True)
+    149 +        for candidate in remaining:
+    150 +            if candidate.word_count > budget_left:
+    151 +                continue
+    152 +            penalty = self._redundancy_penalty(candidate, selected)
+    153 +            adjusted = candidate.score - penalty
+    154 +            if adjusted <= 0:
+    155 +                continue
+    156 +            selected.append(candidate)
+    157 +            selected_ids.add(candidate.sentence_id)
+    158 +            budget_left -= candidate.word_count
+    159 +            if budget_left <= 0:
+    160 +                break
+    161 +
+    162 +        if selected:
+    163 +            return selected
+    164 +
+    165 +        smallest = min(candidates, key=lambda c: c.word_count)
+    166 +        return [smallest] if smallest.word_count <= self.word_budget el
+         se []
+    167 +
+    168 +    def _redundancy_penalty(
+    169 +        self,
+    170 +        candidate: SentenceCandidate,
+    171 +        selected: list[SentenceCandidate],
+    172 +    ) -> float:
+    173 +        if not selected:
+    174 +            return 0.0
+    175 +        max_sim = max(self._sentence_similarity(candidate.text, item.te
+         xt) for item in selected)
+    176 +        return self.redundancy_penalty * max_sim
+    177 +
+    178 +    def _sentence_similarity(self, left: str, right: str) -> float:
+    179 +        left_tokens = self._tokens(left)
+    180 +        right_tokens = self._tokens(right)
+    181 +        if not left_tokens or not right_tokens:
+    182 +            return 0.0
+    183 +        overlap = left_tokens & right_tokens
+    184 +        union = left_tokens | right_tokens
+    185 +        return len(overlap) / max(1, len(union))
+    186 +
+    187 +    def _tokens(self, text: str) -> set[str]:
+    188 +        return {token for token in re.findall(r"[A-Za-z][A-Za-z\-]{1,}"
+         , text.lower())}
+
+• Edited src/extractor/key_info_extractor.py (+139 -0)
+      4
+      5 +from src.extractor.ilp_sentence_selector import ILPSentenceSelector, Se
+         ntenceCandidate
+      6 +from src.extractor.role_tagger_crf import ROLES, SentenceRoleTagger
+      7  from src.parser.section_splitter import Section
+        ⋮
+     17
+     18 +    ROLE_KEYS: tuple[str, ...] = ("objective", "methods", "results", "l
+         imitations")
+     19 +
+     20 +    def __init__(self, extractor_cfg: dict[str, object] | None = None)
+         -> None:
+     21 +        cfg = extractor_cfg or {}
+     22 +        self.strategy = str(cfg.get("strategy", "hybrid")).lower().stri
+         p()
+     23 +        self.word_budget = max(60, int(cfg.get("word_budget", 200)))
+     24 +        self.max_sentences_per_role = max(1, int(cfg.get("max_sentences
+         _per_role", 2)))
+     25 +        self.min_sentence_chars = max(10, int(cfg.get("min_sentence_cha
+         rs", 30)))
+     26 +        self.score_boost_section_match = float(cfg.get("score_boost_sec
+         tion_match", 0.3))
+     27 +        self.score_boost_role_confidence = float(cfg.get("score_boost_r
+         ole_confidence", 0.8))
+     28 +
+     29 +        min_role_coverage_cfg = cfg.get("min_role_coverage", {})
+     30 +        if isinstance(min_role_coverage_cfg, dict):
+     31 +            min_role_coverage = {
+     32 +                role: int(min_role_coverage_cfg.get(role, 0)) for role
+         in self.ROLE_KEYS
+     33 +            }
+     34 +        else:
+     35 +            min_role_coverage = {role: 0 for role in self.ROLE_KEYS}
+     36 +
+     37 +        role_tagger_method = str(cfg.get("role_tagger", "crf")).lower()
+         .strip()
+     38 +        redundancy_penalty = float(cfg.get("redundancy_penalty", 0.35))
+     39 +        similarity_threshold = float(cfg.get("similarity_threshold", 0.
+         12))
+     40 +
+     41 +        self.role_tagger = SentenceRoleTagger(method=role_tagger_method
+         )
+     42 +        self.selector = ILPSentenceSelector(
+     43 +            word_budget=self.word_budget,
+     44 +            redundancy_penalty=redundancy_penalty,
+     45 +            similarity_threshold=similarity_threshold,
+     46 +            min_role_coverage=min_role_coverage,
+     47 +        )
+     48 +
+     49      def extract(self, sections: list[Section]) -> dict[str, list[str]]:
+     50 +        if self.strategy in {"ilp", "hybrid"}:
+     51 +            extracted = self._extract_with_roles_and_ilp(sections)
+     52 +            if self._has_enough_info(extracted):
+     53 +                return extracted
+     54 +
+     55 +        if self.strategy in {"rule", "heuristic"}:
+     56 +            return self._extract_rule_based(sections)
+     57 +
+     58 +        return self._extract_rule_based(sections)
+     59 +
+     60 +    def _extract_with_roles_and_ilp(self, sections: list[Section]) -> d
+         ict[str, list[str]]:
+     61 +        tagged_sentences = self.role_tagger.tag_sections(sections)
+     62 +        if not tagged_sentences:
+     63 +            return self._empty_info()
+     64 +
+     65 +        candidates: list[SentenceCandidate] = []
+     66 +        for tagged in tagged_sentences:
+     67 +            text = tagged.text.strip()
+     68 +            if len(text) < self.min_sentence_chars:
+     69 +                continue
+     70 +            role = tagged.role if tagged.role in self.ROLE_KEYS else "o
+         ther"
+     71 +            base_score = tagged.role_scores.get(role, 0.0)
+     72 +            score = self._score_sentence(
+     73 +                sentence=text,
+     74 +                role=role,
+     75 +                section_title=tagged.section_title,
+     76 +                role_scores=tagged.role_scores,
+     77 +            )
+     78 +            candidates.append(
+     79 +                SentenceCandidate(
+     80 +                    sentence_id=tagged.global_index,
+     81 +                    text=text,
+     82 +                    role=role,
+     83 +                    score=max(base_score, score),
+     84 +                    word_count=tagged.word_count,
+     85 +                )
+     86 +            )
+     87 +
+     88 +        if not candidates:
+     89 +            return self._empty_info()
+     90 +
+     91 +        selected = self.selector.select(candidates)
+     92 +        grouped = self._empty_info()
+     93 +        by_id = {candidate.sentence_id: candidate for candidate in cand
+         idates}
+     94 +        for candidate in sorted(selected, key=lambda item: item.sentenc
+         e_id):
+     95 +            role = candidate.role if candidate.role in grouped else Non
+         e
+     96 +            if role is None:
+     97 +                continue
+     98 +            grouped[role].append(candidate.text)
+     99 +
+    100 +        for role in self.ROLE_KEYS:
+    101 +            grouped[role] = self._deduplicate(grouped[role])[: self.max
+         _sentences_per_role]
+    102 +
+    103 +        grouped = self._fill_missing_roles(grouped, candidates)
+    104 +        return grouped
+    105 +
+    106 +    def _fill_missing_roles(
+    107 +        self,
+    108 +        grouped: dict[str, list[str]],
+    109 +        candidates: list[SentenceCandidate],
+    110 +    ) -> dict[str, list[str]]:
+    111 +        for role in self.ROLE_KEYS:
+    112 +            if grouped[role]:
+    113 +                continue
+    114 +            role_candidates = [c for c in candidates if c.role == role]
+    115 +            role_candidates.sort(key=lambda c: c.score, reverse=True)
+    116 +            for candidate in role_candidates:
+    117 +                if candidate.text not in grouped[role]:
+    118 +                    grouped[role].append(candidate.text)
+    119 +                if len(grouped[role]) >= self.max_sentences_per_role:
+    120 +                    break
+    121 +        return grouped
+    122 +
+    123 +    def _score_sentence(
+    124 +        self,
+    125 +        sentence: str,
+    126 +        role: str,
+    127 +        section_title: str,
+    128 +        role_scores: dict[str, float],
+    129 +    ) -> float:
+    130 +        score = role_scores.get(role, 0.0) * self.score_boost_role_conf
+         idence
+    131 +
+    132 +        bucket = self._bucket_for_title(section_title)
+    133 +        if bucket and bucket == role:
+    134 +            score += self.score_boost_section_match
+    135 +
+    136 +        word_count = self._word_count(sentence)
+    137 +        if 8 <= word_count <= 45:
+    138 +            score += 0.1
+    139 +        if any(ch.isdigit() for ch in sentence):
+    140 +            score += 0.05
+    141 +        if role == "limitations" and any(marker in sentence.lower() for
+          marker in ("however", "but", "limit")):
+    142 +            score += 0.08
+    143 +        return score
+    144 +
+    145 +    def _extract_rule_based(self, sections: list[Section]) -> dict[str,
+          list[str]]:
+    146          info: dict[str, list[str]] = {
+        ⋮
+    169
+    170 +    def _empty_info(self) -> dict[str, list[str]]:
+    171 +        return {role: [] for role in self.ROLE_KEYS}
+    172 +
+    173 +    def _has_enough_info(self, info: dict[str, list[str]]) -> bool:
+    174 +        non_empty_roles = sum(1 for role in self.ROLE_KEYS if info.get(
+         role))
+    175 +        return non_empty_roles >= 2
+    176 +
+    177      def _bucket_for_title(self, title: str) -> str | None:
+        ⋮
+    195          return ordered
+    196 +
+    197 +    def _word_count(self, text: str) -> int:
+    198 +        return len(re.findall(r"[A-Za-z0-9]+(?:-[A-Za-z0-9]+)?", text))
+
+─ Worked for 1m 11s ────────────────────────────────────────────────────────────
+
+• 核心抽取器已接上新流程。接下来我会改 pipeline 和配置，把 200 词预算等参数打
+  通，并修一个 ILP 目标函数细节。
+
+• Edited src/pipeline.py (+4 -1)
+    39          self.splitter = SectionSplitter(max_sections=int(self.config.get
+        ("max_sections", 20)))
+    40 -        self.extractor = KeyInfoExtractor()
+    40 +        extractor_cfg = dict(self.config.get("extractor", {}))
+    41 +        if "min_sentence_chars" not in extractor_cfg:
+    42 +            extractor_cfg["min_sentence_chars"] = int(pipeline_cfg.get("
+        min_sentence_chars", 30))
+    43 +        self.extractor = KeyInfoExtractor(extractor_cfg=extractor_cfg)
+    44          self.structured_summarizer = StructuredSummarizer(
+
+• Edited src/extractor/ilp_sentence_selector.py (+5 -4)
+     67
+     68 -        problem += pulp.lpSum(
+     68 +        objective = pulp.lpSum(
+     69              candidate.score * x_vars[candidate.sentence_id] for candida
+         te in candidates
+     70 -        ), "base_score"
+     70 +        )
+     71          problem += pulp.lpSum(
+        ⋮
+    107          if pair_vars:
+    108 -            penalty_term = pulp.lpSum(
+    108 +            objective -= pulp.lpSum(
+    109                  self.redundancy_penalty * sim * var for sim, var in pai
+         r_vars.values()
+    110              )
+    111 -            problem += -penalty_term
+    111
+    112 +        problem += objective, "selection_objective"
+    113 +
+    114          status = problem.solve(pulp.PULP_CBC_CMD(msg=False))
+
+• Edited src/extractor/key_info_extractor.py (+1 -1)
+    5  from src.extractor.ilp_sentence_selector import ILPSentenceSelector, Sent
+       enceCandidate
+    6 -from src.extractor.role_tagger_crf import ROLES, SentenceRoleTagger
+    6 +from src.extractor.role_tagger_crf import SentenceRoleTagger
+    7  from src.parser.section_splitter import Section
+
+• Edited config/default.yaml (+15 -0)
+    21    use_llm_final_summary: true
+    22 +
+    23 +extractor:
+    24 +  strategy: ilp
+    25 +  role_tagger: crf
+    26 +  word_budget: 200
+    27 +  max_sentences_per_role: 2
+    28 +  redundancy_penalty: 0.35
+    29 +  similarity_threshold: 0.12
+    30 +  score_boost_section_match: 0.3
+    31 +  score_boost_role_confidence: 0.8
+    32 +  min_role_coverage:
+    33 +    objective: 1
+    34 +    methods: 1
+    35 +    results: 1
+    36 +    limitations: 1
+
+• Edited src/extractor/__init__.py (+12 -0)
+     1  """Information extraction components."""
+     2 +
+     3 +from src.extractor.ilp_sentence_selector import ILPSentenceSelector, Sen
+        tenceCandidate
+     4 +from src.extractor.key_info_extractor import KeyInfoExtractor
+     5 +from src.extractor.role_tagger_crf import SentenceRoleTagger, TaggedSent
+        ence
+     6 +
+     7 +__all__ = [
+     8 +    "ILPSentenceSelector",
+     9 +    "SentenceCandidate",
+    10 +    "KeyInfoExtractor",
+    11 +    "SentenceRoleTagger",
+    12 +    "TaggedSentence",
+    13 +]
+
+────────────────────────────────────────────────────────────────────────────────
+
+• 配置已更新。我正在补两条单元测试来验证 200词预算+角色覆盖 和 新抽取器 的基本行
+  为，然后会跑测试。
+
+• Added tests/test_extractor_algorithms.py (+110 -0)
+      1 +from __future__ import annotations
+      2 +
+      3 +from src.extractor.ilp_sentence_selector import ILPSentenceSelector, Se
+         ntenceCandidate
+      4 +from src.extractor.key_info_extractor import KeyInfoExtractor
+      5 +from src.parser.section_splitter import SectionSplitter
+      6 +
+      7 +
+      8 +def test_ilp_selector_respects_budget_and_role_coverage() -> None:
+      9 +    selector = ILPSentenceSelector(
+     10 +        word_budget=20,
+     11 +        redundancy_penalty=0.2,
+     12 +        min_role_coverage={
+     13 +            "objective": 1,
+     14 +            "methods": 1,
+     15 +            "results": 1,
+     16 +            "limitations": 1,
+     17 +        },
+     18 +    )
+     19 +
+     20 +    candidates = [
+     21 +        SentenceCandidate(
+     22 +            sentence_id=0,
+     23 +            text="This paper aims to improve paper summarization qualit
+         y.",
+     24 +            role="objective",
+     25 +            score=0.9,
+     26 +            word_count=8,
+     27 +        ),
+     28 +        SentenceCandidate(
+     29 +            sentence_id=1,
+     30 +            text="We train a modular model with a lightweight pipeline.
+         ",
+     31 +            role="methods",
+     32 +            score=0.85,
+     33 +            word_count=9,
+     34 +        ),
+     35 +        SentenceCandidate(
+     36 +            sentence_id=2,
+     37 +            text="Experiments show stable gains across several benchmar
+         k sets.",
+     38 +            role="results",
+     39 +            score=0.88,
+     40 +            word_count=8,
+     41 +        ),
+     42 +        SentenceCandidate(
+     43 +            sentence_id=3,
+     44 +            text="A key limitation is weaker robustness on rare terms."
+         ,
+     45 +            role="limitations",
+     46 +            score=0.82,
+     47 +            word_count=9,
+     48 +        ),
+     49 +        SentenceCandidate(
+     50 +            sentence_id=4,
+     51 +            text="An ablation confirms that section features are import
+         ant.",
+     52 +            role="results",
+     53 +            score=0.5,
+     54 +            word_count=8,
+     55 +        ),
+     56 +    ]
+     57 +
+     58 +    selected = selector.select(candidates)
+     59 +    assert selected
+     60 +
+     61 +    total_words = sum(candidate.word_count for candidate in selected)
+     62 +    assert total_words <= 20
+     63 +
+     64 +    selected_roles = {candidate.role for candidate in selected}
+     65 +    assert "objective" in selected_roles
+     66 +    assert "methods" in selected_roles
+     67 +    assert "results" in selected_roles
+     68 +    assert "limitations" in selected_roles
+     69 +
+     70 +
+     71 +def test_key_info_extractor_ilp_strategy_returns_structured_info() -> N
+         one:
+     72 +    text = """
+     73 +ABSTRACT
+     74 +This paper aims to build a robust and interpretable scientific summariz
+         er.
+     75 +
+     76 +METHODS
+     77 +We design a modular pipeline with sentence role tagging and optimizatio
+         n.
+     78 +
+     79 +RESULTS
+     80 +Experiments show improved coherence and reduced redundancy across examp
+         les.
+     81 +
+     82 +LIMITATIONS
+     83 +The approach may underperform when domain terms are highly ambiguous.
+     84 +""".strip()
+     85 +
+     86 +    sections = SectionSplitter().split(text)
+     87 +    extractor = KeyInfoExtractor(
+     88 +        extractor_cfg={
+     89 +            "strategy": "ilp",
+     90 +            "role_tagger": "hmm",
+     91 +            "word_budget": 80,
+     92 +            "max_sentences_per_role": 2,
+     93 +            "min_sentence_chars": 20,
+     94 +            "min_role_coverage": {
+     95 +                "objective": 1,
+     96 +                "methods": 1,
+     97 +                "results": 1,
+     98 +                "limitations": 1,
+     99 +            },
+    100 +        }
+    101 +    )
+    102 +
+    103 +    info = extractor.extract(sections)
+    104 +
+    105 +    assert set(info.keys()) == {"objective", "methods", "results", "lim
+         itations"}
+    106 +    assert info["objective"]
+    107 +    assert info["methods"]
+    108 +    assert info["results"]
+    109 +    assert info["limitations"]
+    110 +    assert all(len(items) <= 2 for items in info.values())
+
+• Edited tests/test_extractor_algorithms.py (+5 -5)
+    25              score=0.9,
+    26 -            word_count=8,
+    26 +            word_count=5,
+    27          ),
+       ⋮
+    32              score=0.85,
+    33 -            word_count=9,
+    33 +            word_count=5,
+    34          ),
+       ⋮
+    39              score=0.88,
+    40 -            word_count=8,
+    40 +            word_count=5,
+    41          ),
+       ⋮
+    46              score=0.82,
+    47 -            word_count=9,
+    47 +            word_count=5,
+    48          ),
+       ⋮
+    53              score=0.5,
+    54 -            word_count=8,
+    54 +            word_count=5,
+    55          ),
+
+────────────────────────────────────────────────────────────────────────────────
+
+• 我现在跑一轮 pytest 验证是否有回归，并检查新模块是否通过。
+
+• Ran pytest -q
+  └ ...........
+    [100%]
+    11 passed in 0.32s
+
+• Ran python -m src.main --input data/samples/sample_paper.txt --output data/
+  │ outputs/summary.json
+  └ === Final Academic Summary ===
+    The paper investigates the following objective: A Lightweight Framework for
+    … +13 lines (ctrl + t to view transcript)
+    sem2/8307/8307_CourseProject/data/outputs/summary.json
+    Faithfulness score: 0.893
+
+────────────────────────────────────────────────────────────────────────────────
+
+• 测试和示例运行都正常。最后我会整理一份变更说明（新增文件、核心逻辑、如何切换
+  CRF/HMM/规则）给你。
+
+• Ran git status --short && echo '---' && git diff -- src/extractor/
+  │ key_info_extractor.py src/extractor/role_tagger_crf.py src/extractor/
+  │ ilp_sentence_selector.py src/pipeline.py config/default.yaml tests/
+  │ … +1 lines
+  └  M config/default.yaml
+     M data/data.py
+    … +214 lines (ctrl + t to view transcript)
+                 max_sentences=int(pipeline_cfg.get("max_summary_sentences", 2))
+             )
+
+• Edited src/extractor/key_info_extractor.py (+2 -1)
+     92          grouped = self._empty_info()
+     93 -        by_id = {candidate.sentence_id: candidate for candidate in cand
+         idates}
+     93          for candidate in sorted(selected, key=lambda item: item.sentenc
+         e_id):
+        ⋮
+    102          grouped = self._fill_missing_roles(grouped, candidates)
+    103 +        for role in self.ROLE_KEYS:
+    104 +            grouped[role] = self._deduplicate(grouped[role])[: self.max
+         _sentences_per_role]
+    105          return grouped
+
+• Ran pytest -q
+  └ ...........
+    [100%]
+    11 passed in 0.07s
+
+• Explored
+  └ Read role_tagger_crf.py, ilp_sentence_selector.py, key_info_extractor.py,
+         pipeline.py, default.yaml, test_extractor_algorithms.py, __init__.py
+
+────────────────────────────────────────────────────────────────────────────────
+
+• 我再加一层健壮性处理：如果 PuLP 求解器或 CRF 训练异常，会自动降级，不中断主流
+  程。
+
+• Edited src/extractor/ilp_sentence_selector.py (+4 -1)
+    113
+    114 -        status = problem.solve(pulp.PULP_CBC_CMD(msg=False))
+    114 +        try:
+    115 +            status = problem.solve(pulp.PULP_CBC_CMD(msg=False))
+    116 +        except Exception:
+    117 +            return None
+    118          status_name = pulp.LpStatus.get(status, "Unknown")
+
+• Edited src/extractor/role_tagger_crf.py (+6 -4)
+    149          )
+    150 -        model.fit([features], [weak_labels])
+    151 -
+    152 -        labels = model.predict_single(features)
+    153 -        marginals = model.predict_marginals_single(features)
+    150 +        try:
+    151 +            model.fit([features], [weak_labels])
+    152 +            labels = model.predict_single(features)
+    153 +            marginals = model.predict_marginals_single(features)
+    154 +        except Exception:
+    155 +            return None
+    156          predictions: list[tuple[str, dict[str, float]]] = []
+
+• Ran pytest -q
+  └ ...........
+    [100%]
+    11 passed in 0.07s
+
+• Ran python -m src.main --input data/samples/sample_paper.txt --output data/
+  │ outputs/summary.json
+  └ === Final Academic Summary ===
+    The paper investigates the following objective: A Lightweight Framework for
+    … +13 lines (ctrl + t to view transcript)
+    sem2/8307/8307_CourseProject/data/outputs/summary.json
+    Faithfulness score: 0.893
+
+• Explored
+  └ Read role_tagger_crf.py, ilp_sentence_selector.py
+
+• Ran git status --short
+  └  M config/default.yaml
+     M data/data.py
+    … +4 lines (ctrl + t to view transcript)
+    ?? src/extractor/role_tagger_crf.py
+    ?? tests/test_extractor_algorithms.py
+
+────────────────────────────────────────────────────────────────────────────────
+
+• 已落地一版可运行实现，包含 CRF/HMM 角色标注 + ILP 200词预算选句，并接入现有流
+  水线。
+
+  1. 新增角色标注模块（crf -> hmm -> heuristic 自动降级）
+
+  - src/extractor/role_tagger_crf.py:39
+  - CRF 分支在 src/extractor/role_tagger_crf.py:131
+  - HMM(Viterbi) 分支在 src/extractor/role_tagger_crf.py:162
+
+  2. 新增 ILP 选句模块（预算、角色覆盖、冗余惩罚）
+
+  - src/extractor/ilp_sentence_selector.py:21
+  - ILP 目标与约束在 src/extractor/ilp_sentence_selector.py:53
+  - 无 pulp/求解失败时自动回退贪心在 src/extractor/ilp_sentence_selector.py:132
+
+  3. 改造抽取器接入“角色标注 + ILP”
+
+  - src/extractor/key_info_extractor.py:20
+  - 新主路径在 src/extractor/key_info_extractor.py:49
+  - 保留规则法回退在 src/extractor/key_info_extractor.py:146
+
+  4. 管线与配置打通
+
+  - 管线传入 extractor 配置在 src/pipeline.py:40
+  - 默认配置（含 word_budget: 200）在 config/default.yaml:23
+
+  5. 新增测试
+
+  - tests/test_extractor_algorithms.py:8
+
+  验证结果：
+
+  - pytest -q：11 passed
+  - python -m src.main --input data/samples/sample_paper.txt --output data/
+    outputs/summary.json 可正常运行
+
+  可选依赖（启用真实 CRF/ILP）：
+
+  1. pip install sklearn-crfsuite pulp
+  2. 继续用现有命令运行主流程即可
+
+  补充：data/data.py 在你的工作区里本来就是已修改状态，本次没有改它。
+
+
+
+
+› 给代码标注中文
+
+
+• 我会在你这次新增的算法代码里直接加中文注释（优先给关键流程：CRF/HMM、ILP 目标与约束、回退逻辑），并保持可读性不过度堆注释。改完我会跑测试确认无影响。
+
+• Edited src/extractor/role_tagger_crf.py (+12 -0)
+     15
+     16 +# 角色标签集合：前四个用于摘要结构化输出，other 作为兜底类。
+     17  ROLES: tuple[str, ...] = ("objective", "methods", "results", "limitations", "other")
+        ⋮
+     91      def __init__(self, method: str = "crf") -> None:
+     92 +        # 支持 crf/hmm/heuristic；非法值会在 _predict 中走 heuristic。
+     93          self.method = method.lower().strip()
+        ⋮
+    115      def _predict(self, units: list[SentenceUnit]) -> list[tuple[str, dict[str, float]]]:
+    116 +        # 主分发逻辑：优先 CRF，再退 HMM，再退启发式，保证流程不断。
+    117          if self.method == "crf":
+        ⋮
+    139
+    140 +        # 课程项目场景下没有人工标注语料，使用弱标注先拟合一个单文档 CRF。
+    141          weak_labels = [self._weak_label(unit) for unit in units]
+        ⋮
+    158          except Exception:
+    159 +            # CRF 训练或推断失败时回退，不中断主流程。
+    160              return None
+        ⋮
+    173
+    174 +        # 发射概率直接复用启发式打分，转成概率分布。
+    175          emissions = [self._heuristic_scores(unit) for unit in units]
+        ⋮
+    205
+    206 +        # Viterbi 回溯最优角色序列。
+    207          path = [max(dp[-1], key=dp[-1].get)]
+        ⋮
+    230
+    231 +        # 以可解释特征为主：位置、长度、数字、章节提示、关键词计数等。
+    232          feature: dict[str, object] = {
+        ⋮
+    269
+    270 +        # 章节标题匹配优先级较高。
+    271          if section_bucket:
+        ⋮
+    278          position = unit.global_index / max(1, unit.total_sentences - 1)
+    279 +        # 文档前中后位置先验：前偏 objective，中偏 methods，后偏 results/limitations。
+    280          if position <= 0.2:
+        ⋮
+    294      def _transition_log_probs(self) -> dict[str, dict[str, float]]:
+    295 +        # 转移矩阵体现论文常见叙事顺序：
+    296 +        # objective -> methods -> results -> limitations。
+    297          high = math.log(0.55)
+
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• 我继续给 ILP 选句模块加中文注释，重点解释目标函数、预算约束、冗余线性化约束。随后会统一跑测试。
+
+• Edited src/extractor/ilp_sentence_selector.py (+9 -0)
+     30      ) -> None:
+     31 +        # 200 词预算是课程项目默认值，可在配置中覆盖。
+     32          self.word_budget = max(1, int(word_budget))
+        ⋮
+     39      def select(self, candidates: list[SentenceCandidate]) -> list[SentenceCandidate]:
+     40 +        # 先过滤明显无效句子，减少后续优化规模。
+     41          filtered = [
+        ⋮
+     58
+     59 +        # ILP：最大化信息分数，在预算与覆盖约束下抑制冗余。
+     60          problem = pulp.LpProblem("summary_sentence_selection", pulp.LpMaximize)
+        ⋮
+     73          )
+     74 +        # 词数预算约束：sum(len_i * x_i) <= B。
+     75          problem += pulp.lpSum(
+        ⋮
+     78
+     79 +        # 角色覆盖约束：保证 objective/methods/results/limitations 至少命中指定数量。
+     80          for role, min_count in self.min_role_coverage.items():
+        ⋮
+    105                  pair_vars[(cid_left, cid_right)] = (sim, z_var)
+    106 +                # 线性化约束：z_ij = x_i AND x_j，用于冗余惩罚项。
+    107                  problem += z_var <= x_vars[cid_left], f"pair_l_{cid_left}_{cid_right}"
+        ⋮
+    113          if pair_vars:
+    114 +            # 目标函数增加冗余惩罚：-lambda * sim_ij * z_ij。
+    115              objective -= pulp.lpSum(
+        ⋮
+    123          except Exception:
+    124 +            # 求解器异常时回退贪心，不影响主流程。
+    125              return None
+        ⋮
+    140      def _select_with_greedy(self, candidates: list[SentenceCandidate]) -> list[SentenceCandidate]:
+    141 +        # 回退策略：先满足角色覆盖，再按性价比(分数/词数)补句。
+    142          selected: list[SentenceCandidate] = []
+
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• 最后我会在 KeyInfoExtractor 主流程补中文注释，说明 ILP 主路径与规则回退的关系，然后跑测试。
+
+• Edited src/extractor/key_info_extractor.py (+5 -0)
+     21          cfg = extractor_cfg or {}
+     22 +        # strategy: ilp(只走新算法) / hybrid(优先新算法,不足则回退) / rule(旧规则)。
+     23          self.strategy = str(cfg.get("strategy", "hybrid")).lower().strip()
+        ⋮
+     50      def extract(self, sections: list[Section]) -> dict[str, list[str]]:
+     51 +        # 新主路径：角色标注 + ILP 选句。
+     52          if self.strategy in {"ilp", "hybrid"}:
+        ⋮
+     56
+     57 +        # 回退路径：兼容旧规则，保证在依赖缺失或文本异常时仍可用。
+     58          if self.strategy in {"rule", "heuristic"}:
+        ⋮
+     93
+     94 +        # 在统一预算下跨角色联合优化，而不是每个角色独立贪心。
+     95          selected = self.selector.select(candidates)
+        ⋮
+    106          grouped = self._fill_missing_roles(grouped, candidates)
+    107 +        # 最后再做一次去重和截断，避免补全阶段超出每类上限。
+    108          for role in self.ROLE_KEYS:
+
+• Ran pytest -q
+  └ ...........                                                              [100%]
+    11 passed in 0.06s
+
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• 已完成，核心算法代码都加了中文注释，主要覆盖“做什么、为什么、回退逻辑”。
+
+  已标注文件：
+
+  - src/extractor/role_tagger_crf.py
+  - src/extractor/ilp_sentence_selector.py
+  - src/extractor/key_info_extractor.py
+
+  验证结果：
+
+  - pytest -q 通过：11 passed
+
+  如果你要，我可以继续把 src/pipeline.py、src/summarizer/* 也统一补一版中文注释风格。
+
+
+› 统一补一版中文注释
+
+
+• 我会把整个项目核心代码统一成“关键逻辑中文注释”风格，先扫描 src/ 和 scripts/，然后批量补注释并跑测试确认。
+
+• Explored
+  └ List src
+    List tests
+    List scripts
+
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• 我先快速读一遍尚未标注的模块（llm、parser、summarizer、utils、verifier、main/pipeline），然后按同一风格补注释。
+
+• Explored
+  └ Read client.py, prompts.py
+
+• Ran sed -n '1,260p' src/parser/document_loader.py && echo '---' && sed -n '1,320p' src/parser/section_splitter.py
+  └ from __future__ import annotations
+
+    … +98 lines (ctrl + t to view transcript)
+                return title.title()
+            return title
+
+• Explored
+  └ Read pipeline.py
+
+• Ran sed -n '1,260p' src/main.py && echo '---' && sed -n '1,260p' src/verifier/faithfulness_checker.py
+  └ from __future__ import annotations
+
+    … +68 lines (ctrl + t to view transcript)
+        def _tokenize(self, text: str) -> set[str]:
+            return {token for token in re.findall(r"[A-Za-z][A-Za-z\-]{1,}", text.lower())}
+
+• Ran sed -n '1,260p' src/summarizer/structured_summarizer.py && echo '---' && sed -n '1,260p' src/summarizer/final_summarizer.py
+  └ from __future__ import annotations
+
+    … +64 lines (ctrl + t to view transcript)
+            cleaned = [item.strip() for item in items if isinstance(item, str) and item.strip()]
+            return " ".join(cleaned[:2])
+
+• Explored
+  └ Read io.py
+
+• Ran sed -n '1,220p' scripts/run_demo.py && echo '---' && sed -n '1,220p' scripts/evaluate.py
+  └ from __future__ import annotations
+
+    … +57 lines (ctrl + t to view transcript)
+    if __name__ == "__main__":
+        main()
+
+• Ran sed -n '1,220p' src/agent/controller.py && echo '---' && sed -n '1,220p' src/agent/state.py
+  └ from __future__ import annotations
+
+    … +32 lines (ctrl + t to view transcript)
+        final_summary: str = ""
+        verification: dict[str, Any] = field(default_factory=dict)
+
+• Ran sed -n '1,120p' src/parser/__init__.py && echo '---' && sed -n '1,120p' src/verifier/__init__.py && echo '---' && sed -n '1,120p' src/summarizer/__init__.py && echo '---' && sed -n '1,120p' src/llm/
+  │ __init__.py && echo '---' && sed -n '1,120p' src/agent/__init__.py && echo '---' && sed -n '1,120p' src/utils/__init__.py && echo '---' && sed -n '1,120p' src/__init__.py
+  └ """Parsing utilities for document ingestion and sectioning."""
+    ---
+    … +9 lines (ctrl + t to view transcript)
+    ---
+    """Scientific paper summarization agent package."""
+
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• 我将统一改成“中文模块说明 + 关键步骤中文注释”的风格，先从 __init__、main/scripts、utils/agent 这些基础文件开始，再处理核心流水线模块。
+
+• Edited src/__init__.py (+1 -1)
+    1 -"""Scientific paper summarization agent package."""
+    1 +"""科研论文摘要代理主包。"""
+
+• Edited src/agent/__init__.py (+1 -1)
+    1 -"""Agent-level orchestration and state containers."""
+    1 +"""代理层编排与状态容器。"""
+
+• Edited src/llm/__init__.py (+1 -1)
+    1 -"""LLM adapters and prompt utilities."""
+    1 +"""LLM 适配器与提示词工具。"""
+
+• Edited src/parser/__init__.py (+1 -1)
+    1 -"""Parsing utilities for document ingestion and sectioning."""
+    1 +"""文档加载与章节切分工具。"""
+
+• Edited src/summarizer/__init__.py (+1 -1)
+    1 -"""Summary generation modules."""
+    1 +"""摘要生成模块。"""
+
+• Edited src/utils/__init__.py (+1 -1)
+    1 -"""General utilities."""
+    1 +"""通用工具函数。"""
+
+• Edited src/verifier/__init__.py (+1 -1)
+    1 -"""Verification utilities for summary support checks."""
+    1 +"""摘要支持性校验工具。"""
+
+• Edited src/extractor/__init__.py (+1 -1)
+    1 -"""Information extraction components."""
+    1 +"""关键信息抽取组件。"""
+    2
+
+• Edited src/agent/controller.py (+2 -1)
+     9  class AgentController:
+    10 -    """Thin wrapper for pipeline orchestration."""
+    10 +    """对流水线的一层轻量封装，方便上层统一调用。"""
+    11
+       ⋮
+    15      def run(self, input_path: str | Path | None = None, output_path: str | Path | None = None) -> PipelineState:
+    16 +        # 直接透传到底层流水线，保持控制器行为简单可预测。
+    17          return self.pipeline.run(input_path=input_path, output_path=output_path)
+
+• Edited src/agent/state.py (+1 -0)
+    11  class PipelineState:
+    12 +    # 输入输出路径与各阶段中间结果，便于调试与落盘。
+    13      input_path: str = ""
+
+• Edited src/utils/io.py (+1 -0)
+    27      resolved = Path(path)
+    28 +    # 写文件前确保父目录存在，避免首次运行时报错。
+    29      resolved.parent.mkdir(parents=True, exist_ok=True)
+
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• 基础模块已改好。接下来我会统一给 main 和 scripts 加中文注释，再进入 pipeline/llm/parser/summarizer/verifier 主逻辑。
+
+• Edited src/main.py (+2 -0)
+     8  if str(ROOT) not in sys.path:
+     9 +    # 允许以 `python -m src.main` 方式从项目根目录导入模块。
+    10      sys.path.insert(0, str(ROOT))
+       ⋮
+    27
+    28 +    # CLI 参数仅覆盖输入/输出与配置路径，不改动内部流程。
+    29      pipeline = SummarizationPipeline(config_path=args.config, prompts_path=args.prompts)
+
+• Edited scripts/run_demo.py (+2 -0)
+     7  if str(ROOT) not in sys.path:
+     8 +    # 让脚本在仓库任意位置执行时都能找到 src 包。
+     9      sys.path.insert(0, str(ROOT))
+       ⋮
+    14  def main() -> None:
+    15 +    # demo 使用默认配置跑完整流水线。
+    16      pipeline = SummarizationPipeline()
+
+• Edited scripts/evaluate.py (+1 -0)
+    24
+    25 +    # 这里是轻量离线评估：章节数、faithfulness 分数、未支持条目数。
+    26      section_count = len(payload.get("sections", []))
+
+• Edited src/parser/document_loader.py (+1 -1)
+     8  class DocumentLoader:
+     9 -    """Load plain-text documents from local storage."""
+     9 +    """从本地读取纯文本论文。"""
+    10
+
+• Edited src/parser/section_splitter.py (+3 -0)
+    13  class SectionSplitter:
+    14 +    # 常见英文章节名词表，用于标题识别。
+    15      COMMON_HEADINGS = {
+       ⋮
+    47              if self._is_heading(line):
+    48 +                # 遇到标题时先落盘上一段，再开启新段。
+    49                  self._append_section(sections, current_title, buffer)
+       ⋮
+    67      def _is_heading(self, line: str) -> bool:
+    68 +        # 过长文本或句末标点通常不是标题。
+    69          if len(line) > 90:
+
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• 我正在处理 LLM 和 pipeline 两个核心模块，会重点标清配置来源、错误回退和请求流程，避免注释过密。
+
+• Edited src/llm/prompts.py (+1 -0)
+    13      def from_yaml(cls, path: str | Path) -> "PromptManager":
+    14 +        # 统一把 YAML 值转成字符串，避免模板渲染时类型不一致。
+    15          data = load_yaml(path)
+
+• Edited src/llm/client.py (+5 -1)
+      9  class LLMClient:
+     10 -    """Minimal LLM client with mock mode and OpenAI-compatible HTTP mode."""
+     10 +    """最小可用 LLM 客户端：支持 mock 与 OpenAI 兼容接口。"""
+     11
+        ⋮
+     37          if self.use_mock:
+     38 +            # mock 模式返回可读预览，便于离线调试。
+     39              prefix = f"[MOCK:{self.model}]"
+        ⋮
+     76          endpoint = self.chat_endpoint
+     77 +        # 防止 base_url 与 endpoint 同时带 /v1 导致重复路径。
+     78          if self.base_url.endswith("/v1") and endpoint.startswith("/v1/"):
+        ⋮
+    109      def _extract_content(self, response: dict[str, Any]) -> str:
+    110 +        # 兼容 Responses 风格字段。
+    111          output_text = response.get("output_text")
+        ⋮
+    114
+    115 +        # 兼容 Chat Completions 风格字段。
+    116          choices = response.get("choices")
+
+• Edited src/summarizer/structured_summarizer.py (+1 -0)
+    16      ) -> dict[str, object]:
+    17 +        # 每章取前若干句，作为可追溯的章节级摘要。
+    18          section_summaries = [
+
+• Edited src/summarizer/final_summarizer.py (+2 -0)
+    15          sentences: list[str] = []
+    16 +        # 固定模板组装最终学术摘要，便于课程展示与解释。
+    17          if objective:
+       ⋮
+    33              return ""
+    34 +        # 每类最多拼接两条，避免摘要段落过长。
+    35          cleaned = [item.strip() for item in items if isinstance(item, str) and item.strip()]
+
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• LLM、summarizer 已统一注释。现在补 pipeline 和 verifier 的关键流程注释，这是最后一批核心改动。
+
+• Edited src/verifier/faithfulness_checker.py (+2 -0)
+    13      ) -> dict[str, Any]:
+    14 +        # 逐条检查抽取 claim 是否原文可定位（字符串级启发式）。
+    15          claims = [item for values in key_info.values() for item in values]
+       ⋮
+    23          else:
+    24 +            # 以词汇重叠率近似 faithfulness，适合课程项目快速对比。
+    25              overlap = summary_tokens & doc_tokens
+
+■ Conversation interrupted - tell the model what to do differently. Something went wrong? Hit `/feedback` to report the issue.
+
+
+› 继续标注
+
+
+• 我继续完成剩余标注，先检查还没统一到中文注释风格的文件，然后补 pipeline 及遗漏模块并重新跑测试。
+
+• Explored
+  └ Search #|\"\"\" in src
+    Read pipeline.py
+
+• Ran git status --short
+  └  M config/default.yaml
+     M data/data.py
+    … +24 lines (ctrl + t to view transcript)
+    ?? src/extractor/role_tagger_crf.py
+    ?? tests/test_extractor_algorithms.py
+
+• Working (24s • esc to interrupt)
+
+• Edited src/pipeline.py (+7 -1)
+     26      ) -> None:
+     27 +        # 统一以项目根目录解析相对路径，避免工作目录差异影响运行。
+     28          self.project_root = Path(__file__).resolve().parents[1]
+        ⋮
+     31
+     32 +        # 配置与提示词在初始化阶段一次性加载。
+     33          self.config: dict[str, Any] = load_yaml(self.config_path)
+        ⋮
+     43          if "min_sentence_chars" not in extractor_cfg:
+     44 +            # 与旧配置兼容：若 extractor 未配置该参数，则沿用 pipeline
+         配置。
+     45              extractor_cfg["min_sentence_chars"] = int(pipeline_cfg.get(
+         "min_sentence_chars", 30))
+        ⋮
+     81
+     82 +        # 通过 SMART_LLM__* 环境变量覆盖配置，方便本地切换模型与密钥。
+     83          env_api_key = os.getenv("SMART_LLM__API_KEY", "").strip()
+        ⋮
+    104      def _build_llm_final_summary_prompt(self, structured_summary: dict[
+         str, Any]) -> str:
+    105 +        # 结构化结果先序列化再注入 prompt，提升可追溯性。
+    106          serialized = json.dumps(structured_summary, ensure_ascii=False,
+          indent=2)
+        ⋮
+    132
+    133 +        # 主流程：加载 -> 切分 -> 抽取 -> 结构化摘要 -> 最终摘要 -> 校
+         验 -> 落盘。
+    134          state.document_text = self.loader.load(resolved_input)
+        ⋮
+    148              except Exception:
+    143 -                # Keep deterministic fallback summary when external LLM
+          call fails.
+    149 +                # 外部 LLM 失败时保留本地确定性摘要，保证流程稳定返回。
+    150                  pass
+
+────────────────────────────────────────────────────────────────────────────────
+
+• 我已补完 pipeline 的中文注释并替换了最后一处英文回退注释。现在跑一轮测试确认全
+  部修改不影响功能。
+
+• Ran pytest -q
+  └ ...........
+    [100%]
+    11 passed in 0.54s
+
+────────────────────────────────────────────────────────────────────────────────
+
+• 已继续完成统一中文注释，覆盖了剩余核心文件，重点是流程说明与关键逻辑说明。
+
+  主要补充位置：
+
+  - src/pipeline.py
+  - src/llm/client.py、src/llm/prompts.py
+  - src/parser/section_splitter.py、src/parser/document_loader.py
+  - src/summarizer/structured_summarizer.py、src/summarizer/final_summarizer.py
+  - src/verifier/faithfulness_checker.py
+  - src/main.py、scripts/run_demo.py、scripts/evaluate.py
+  - 各模块 __init__.py 的英文说明也已统一为中文
+
+  验证结果：
+
+  - pytest -q 通过（11 passed）。
+
+
+› data.py文件是做什么的
+
+
+• data/data.py 是一个数据分析/预处理辅助脚本，作用是：
+
+  1. 从 Hugging Face 加载 ccdv/pubmed-summarization 的训练集前 5000 条。
+  2. 用 allenai/led-base-16384 分词器统计每条 article 和 abstract 的 token 长
+     度。
+  3. 输出均值、标准差、中位数、90/95/99 分位数、最大值等统计。
+
+  它主要用于帮你决定摘要任务的长度预算（如 max_tokens、截断策略），不属于主摘要
+  流水线必经步骤。
+
+
+› 如何搭agent
+
+
+• 在你这个项目里，搭一个可用的 agent 最快做法是按“状态机 + 流水线工具”来做：
+
+  1. 定义状态对象
+     用 src/agent/state.py 的 PipelineState 存输入、章节、关键信息、最终摘要、校
+     验结果。
+  2. 把能力拆成独立工具
+     你已经有了：解析、抽取、总结、校验，分别在 src/parser/, src/extractor/,
+     src/summarizer/, src/verifier/。
+  3. 用控制器编排步骤
+     在 src/agent/controller.py 调 src/pipeline.py 执行：
+     load -> split -> extract -> summarize -> verify -> save。
+  4. 加配置与回退
+     在 config/default.yaml 控制策略；LLM 失败时回退本地摘要（已在 pipeline 里实
+     现）。
+  5. 运行与验证
+     运行：python -m src.main --input data/samples/sample_paper.txt --output
+     data/outputs/summary.json
+     验证：pytest -q
+
+  如果你要，我可以下一步把 AgentController 从“薄封装”升级成“会决策的多轮
+  agent”（带重试、分支策略、日志）。
+
+
+› 我现在的文件里有agent吗
+
+
+• 有。
+
+  你现在仓库里有 agent 目录和代码：
+
+  - src/agent/controller.py
+  - src/agent/state.py
+
+
+
+› 这两个的作用是什么
+
+
+• - src/agent/controller.py
+    作用是控制入口：封装 SummarizationPipeline，对外提供统一 run(...) 调用。它本
+    身不做算法，只负责触发整条流程。
+  - src/agent/state.py
+    作用是状态数据结构：PipelineState 用来保存一次运行的中间结果和最终结果（输入
+    路径、sections、key_info、structured_summary、final_summary、
+    verification）。
+    方便调试、传递、落盘。
+
+
+› 向我解释
+
+
+• Explored
+  └ Read state.py, controller.py, pipeline.py
+
+────────────────────────────────────────────────────────────────────────────────
+
+• 可以把它们理解成“一个负责执行，一个负责装结果”：
+
+  1. AgentController（执行器）
+
+  - 定义在 src/agent/controller.py:9
+  - 初始化时持有一个 SummarizationPipeline（没传就新建）src/agent/
+    controller.py:12
+  - run() 只是把 input_path/output_path 透传给 pipeline 并返回状态 src/agent/
+    controller.py:15
+
+  2. PipelineState（结果容器）
+
+  - 定义在 src/agent/state.py:10
+  - 是一个 dataclass，存放一次运行的全部关键结果：输入路径、章节、抽取信息、结构
+    化摘要、最终摘要、校验结果 src/agent/state.py:13
+  - 被 pipeline 在运行过程中逐步填充 src/pipeline.py:119
+
+  一句话区分：
+
+  - controller.py：控制流程入口
+  - state.py：承载流程数据
+
+
+› 这是个完整的agent吗
+
+
+• 严格说：不算“完整通用 Agent”，但它是一个完整可运行的“任务型 Agent”（论文摘要场
+  景）。
+
+  你现在这套能端到端跑通：读文档 → 切分 → 抽取 → 总结 → 校验 → 输出。
+  但如果按通用 Agent 标准，还缺这些能力：
+
+  1. 多轮自主决策与规划循环
+  2. 动态工具选择（不仅固定流水线）
+  3. 长期记忆/历史上下文管理
+  4. 自我反思与失败重试策略
+  5. 对话式任务交互与目标澄清
+
+  所以结论是：场景内完整，通用意义下不完整。
+
+
+› 如何增加
+
+
+• 可以按这条最稳的路径加，先把你现在的“流水线控制器”升级成“可决策 Agent”：
+
+  1. 加 Planner（决策）
+
+  - 新建 src/agent/planner.py
+  - 输入 PipelineState，输出下一步动作（load/split/extract/summarize/verify/
+    retry/finish）
+
+  2. 加 Tool Registry（动态工具调用）
+
+  - 新建 src/agent/tools.py
+  - 把现有模块包装成可调用工具（parser/extractor/summarizer/verifier/llm）
+
+  3. 改 Controller 为循环执行
+
+  - 改 src/agent/controller.py
+  - 从“单次透传”变成：
+    plan -> act -> observe -> update state -> 判断是否结束
+
+  4. 加记忆层（短期+持久化）
+
+  - 新建 src/agent/memory.py
+  - 短期：当前会话步骤历史
+  - 长期：写到 data/outputs/agent_memory.json
+
+  5. 加反思与重试策略
+
+  - 在 Agent 循环里基于 faithfulness_score 和 unsupported_claims 决定是否重试
+  - 例如低于阈值就切换 extractor 策略重跑一次
+
+  6. 加配置和测试
+
+  - 扩展 config/default.yaml：agent.max_steps、retry_limit、
+    faithfulness_threshold
+  - 新增 tests/test_agent_loop.py、tests/test_agent_retry.py
+
+  如果你要，我可以下一步直接把第 1~3 步代码先落地成可运行 MVP。
+
+
+› 你先告诉我，那我的agent现在的逻辑是什么
+
+
+• 我先基于当前代码给你梳理“从输入到输出”的完整执行链路，并标出每一步在代码里的位
+  置。
+
+• Explored
+  └ Read controller.py, pipeline.py, default.yaml
+
+────────────────────────────────────────────────────────────────────────────────
+
+• 我再补充抽取阶段内部逻辑（CRF/HMM + ILP）的位置，这样你可以看到 agent 核心“智
+  能性”来自哪里。
+
+• Explored
+  └ Read key_info_extractor.py, ilp_sentence_selector.py, role_tagger_crf.py
+
+────────────────────────────────────────────────────────────────────────────────
+
+• 你现在的 agent 逻辑是一个“单轮、固定流程”的任务型代理：
+
+  1. 入口转发
+     src/agent/controller.py:15 的 run() 只做一件事：调用 pipeline.run(...)。
+  2. 初始化组件与配置
+     src/pipeline.py:32 会加载配置/提示词，创建 loader、splitter、extractor、
+     summarizer、verifier、llm client。
+  3. 主执行链路
+     src/pipeline.py:133 按顺序执行：
+     加载文本 -> 章节切分 -> 关键信息抽取 -> 结构化摘要 -> 最终摘要 -> 支持性校
+     验 -> 写JSON
+  4. 抽取阶段（你现在的“智能核心”）
+     默认配置是 extractor.strategy: ilp、role_tagger: crf、word_budget: 200（见
+     config/default.yaml:23）。
+
+  - 角色标注：CRF -> HMM -> heuristic 逐级回退 src/extractor/
+    role_tagger_crf.py:115
+  - 选句：ILP 在词数预算+角色覆盖+冗余惩罚下优化，失败则贪心回退 src/extractor/
+    ilp_sentence_selector.py:55
+
+  5. LLM使用逻辑
+     先生成本地最终摘要，再“可选”用 LLM 重写；如果 LLM 报错就保留本地摘要 src/
+     pipeline.py:143。
+     你当前默认 llm.use_mock: true，所以通常走本地流程 config/default.yaml:6。
+  6. 状态承载
+     所有中间结果放在 PipelineState 里（sections、key_info、final_summary、
+     verification 等）src/agent/state.py:10。
+
+  一句话：你现在是“固定步骤执行器”，不是“多轮自主规划型 agent”。
+
+
+› 帮我在pipeline标注流程
+
+
+• 我会直接在 src/pipeline.py 的 run() 里加清晰的“步骤编号注释”（Step 1~6），让流
+  程一眼可读，不改现有功能。改完我会跑测试确认。
+
+• Explored
+  └ Read pipeline.py
+
+────────────────────────────────────────────────────────────────────────────────
+
+• 我现在只改 run() 内注释，不改任何逻辑；然后会跑一遍测试确认。
+
+• Edited src/pipeline.py (+10 -1)
+    118      ) -> PipelineState:
+    119 +        # Step 0. 初始化运行状态，并解析输入输出路径。
+    120          state = PipelineState()
+        ⋮
+    133
+    133 -        # 主流程：加载 -> 切分 -> 抽取 -> 结构化摘要 -> 最终摘要 -> 校
+         验 -> 落盘。
+    134 +        # Step 1. 读取原文并按章节切分。
+    135          state.document_text = self.loader.load(resolved_input)
+        ⋮
+    137
+    138 +        # Step 2. 抽取 objective/methods/results/limitations 等关键信息
+         。
+    139          state.key_info = self.extractor.extract(state.sections)
+    140 +
+    141 +        # Step 3. 生成结构化摘要与本地最终摘要。
+    142          state.structured_summary = self.structured_summarizer.summarize
+         (
+        ⋮
+    146          state.final_summary = self.final_summarizer.summarize(state.str
+         uctured_summary)
+    147 +
+    148 +        # Step 4. 可选：若启用真实 LLM，则用 LLM 重写最终摘要。
+    149          if self.use_llm_final_summary and not self.llm_client.use_mock:
+        ⋮
+    156                  pass
+    157 +
+    158 +        # Step 5. 对最终摘要做支持性（faithfulness）启发式校验。
+    159          state.verification = self.verifier.check(
+        ⋮
+    164
+    165 +        # Step 6. 组装输出并写入 JSON 文件。
+    166          payload = {
+
+• Ran pytest -q
+  └ ...........
+    [100%]
+    11 passed in 0.09s
+
+────────────────────────────────────────────────────────────────────────────────
+
+• 已在 pipeline 里完成“流程标注”，并且保持原逻辑不变。
+
+  更新文件：
+
+  - src/pipeline.py
+
+  现在 run() 里是按步骤编号注释：
+
+  1. 初始化与路径解析
+  2. 读取原文+章节切分
+  3. 关键信息抽取
+  4. 结构化摘要+本地最终摘要
+  5. 可选 LLM 重写
+  6. faithfulness 校验
+  7. 组装并写出 JSON
+
+  验证结果：
+
+  - pytest -q 通过（11 passed）。
+
+
+› 那我要如何给agent增加多轮自主决策与规划循环
+    2. 动态工具选择（不仅固定流水线）
+    3. 长期记忆/历史上下文管理
+    4. 自我反思与失败重试策略
+    5. 对话式任务交互与目标澄清
+
+
+• 可以，建议按“在现有流水线外包一层 Agent Loop”来做，最稳。
+
+  1. 多轮自主决策与规划循环
+     改 src/agent/controller.py 为循环执行器，不再一次 pipeline.run() 结束。
+     新增 planner.py：每轮基于 state + memory + 上一轮结果 产出 next_action。
+  2. 动态工具选择
+     新增 tools.py，做 ToolRegistry：把现有能力注册成工具（load/split/extract/
+     summarize/verify/save）。
+     planner 只输出工具名和参数，controller 统一调用 registry。
+  3. 长期记忆/历史上下文
+     扩展 src/agent/state.py 加 turn_history。
+     新增 memory.py：持久化到 data/outputs/agent_memory.jsonl（或 sqlite），支持
+     按 query 检索历史 case。
+  4. 自我反思与失败重试
+     新增 reviewer.py：每轮产出 score, issues, should_retry, retry_hint。
+     触发条件可先用：faithfulness_score < 阈值、unsupported_claims > 0、工具异
+     常。
+     重试策略：切换 extractor 策略（ilp -> rule）、降低约束、最多 N 次。
+  5. 对话式任务交互与目标澄清
+     新增 dialogue.py：当输入缺失/目标冲突时返回 needs_clarification=True 和问
+     题。
+     controller 在循环中检测该标志，暂停并向用户提问，再继续下一轮。
+
+  最小循环骨架（建议）：
+
+  while step < max_steps:
+      action = planner.plan(state, memory)
+      if action.needs_clarification:
+          return ask_user(action.question)
+
+      obs = tools.invoke(action.tool_name, action.args, state)
+      state.apply(obs)
+
+      review = reviewer.evaluate(state, obs)
+      memory.append(state, action, review)
+
+      if review.should_retry:
+          planner.inject_retry_hint(review.retry_hint)
+          continue
+      if state.is_done:
+          break
+
+  建议你先落地这 6 个文件：
+
+  - src/agent/planner.py
+  - src/agent/tools.py
+  - src/agent/memory.py
+  - src/agent/reviewer.py
+  - src/agent/dialogue.py
+  - 改 src/agent/controller.py 与 src/agent/state.py
+
+  如果你要，我下一步可以直接给你写一个可运行 MVP（含上述循环和测试）。
+
+
+› 如何导出上面的对话记录
+
+
+• 最稳的方法有 3 种：
+
+  1. 手动复制导出（可导出“上面已有内容”）
+
+  - 在聊天窗口里全选对话内容并复制
+  - 粘贴到本地文件，例如 chat_record.md 或 chat_record.txt
+
+  2. 复制后用命令保存（macOS）
+
+  pbpaste > chat_record_2026-04-16.md
+
+  前提是你已经把对话复制到剪贴板。
+
+  3. 从现在开始自动录制终端会话（不含过去记录）
+
+  script -q chat_record_$(date +%F_%H%M).txt
+
+  结束录制：exit 或 Ctrl+D。
+
+  如果你愿意，我也可以直接帮你把本次对话整理成一个 Markdown 文件放到项目目录里。
+
+
+› Improve documentation in @filename
+
+  gpt-5.3-codex xhigh · ~/Desktop/HKU sem2/8307/8307_CourseProject

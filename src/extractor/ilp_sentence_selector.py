@@ -113,8 +113,8 @@ class ILPSentenceSelector:
         if pair_vars:
             # 目标函数增加冗余惩罚：-lambda * sim_ij * z_ij。
             objective -= pulp.lpSum(
-                self.redundancy_penalty * sim * var for sim, var in pair_vars.values()
-            )
+                self.redundancy_penalty * sim * var for sim, var in pair_vars.values() # type: ignore
+            ) 
 
         problem += objective, "selection_objective"
 
