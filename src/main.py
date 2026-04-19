@@ -4,6 +4,14 @@ import argparse
 import sys
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+# 加载项目根目录的 .env 文件（如果存在）
+_PROJECT_ROOT = Path(__file__).resolve().parents[1]
+_ENV_PATH = _PROJECT_ROOT / ".env"
+if _ENV_PATH.exists():
+    load_dotenv(dotenv_path=str(_ENV_PATH))
+
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     # 允许以 `python -m src.main` 方式从项目根目录导入模块。

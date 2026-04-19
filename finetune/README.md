@@ -92,9 +92,10 @@ python finetune/train_lora_mi.py \
   --train_file data/samples/train_ner.jsonl \
   --eval_file data/samples/dev_ner.jsonl \
   --output_dir data/outputs/ft_lora_mi \
-  --lambda_mi 0.1 \
   --use_entity_prior \
-  --entity_column entity_text \
+  --use_link_layer \
+  --lambda_node 0.1 \
+  --lambda_link 0.05 \
   --lora_r 16 \
   --lora_alpha 32 \
   --lora_dropout 0.1
@@ -102,8 +103,8 @@ python finetune/train_lora_mi.py \
 
 说明：
 
-- 总损失：`L_total = L_mle + lambda_mi * L_mi`
-- 开启 `--use_entity_prior` 后，训练会读取 `entity_column`（如 `entity_text`）参与 MI 对齐
+- 总损失：`L_total = L_mle + lambda_node * L_node + lambda_link * L_link`
+- 开启 `--use_entity_prior` 后，训练会读取实体类型和位置信息参与三层对齐
 - 训练阶段不再运行 NER，实体识别完全在预处理脚本完成
 - 验证阶段默认不使用实体先验（仅训练集使用）
 

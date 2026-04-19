@@ -3,6 +3,13 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+_PROJECT_ROOT = Path(__file__).resolve().parents[1]
+_ENV_PATH = _PROJECT_ROOT / ".env"
+if _ENV_PATH.exists():
+    load_dotenv(dotenv_path=str(_ENV_PATH))
+
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
 

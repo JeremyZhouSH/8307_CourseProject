@@ -5,15 +5,15 @@ import json
 from pathlib import Path
 from typing import Any
 
-from datasets import DatasetDict, load_dataset
+from datasets import Dataset, DatasetDict, load_dataset
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Preprocess dataset and annotate biomedical entities.")
     # 数据来源：二选一
     # 1) HuggingFace 数据集（dataset_name / dataset_config）
-    parser.add_argument("--dataset_name", default="")
-    parser.add_argument("--dataset_config", default="")
+    parser.add_argument("--dataset_name", default="ccdv/pubmed-summarization")
+    parser.add_argument("--dataset_config", default="document")
     parser.add_argument("--train_split", default="train")
     parser.add_argument("--eval_split", default="validation")
     parser.add_argument("--test_split", default="test")
@@ -26,6 +26,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--summary_column", default="abstract")
     # 预处理新增字段：实体串，默认列名 entity_text
     parser.add_argument("--entity_column", default="entity_text")
+    parser.add_argument("--entity_types_column", default="entity_types")
+    parser.add_argument("--entity_spans_column", default="entity_spans")
+    parser.add_argument("--summary_entity_column", default="summary_entities")
+    parser.add_argument("--summary_entity_types_column", default="summary_entity_types")
+    parser.add_argument("--summary_entity_spans_column", default="summary_entity_spans")
     parser.add_argument("--ner_model", default="en_ner_bionlp13cg_md")
     parser.add_argument("--max_entities", type=int, default=64)
     parser.add_argument("--output_train", default="data/samples/train_ner.jsonl")
@@ -41,27 +46,51 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
 
 def load_data(args: argparse.Namespace) -> DatasetDict:
+    def _resolve_hf_split(dataset: DatasetDict, split_name_or_expr: str) -> Dataset:
+        if split_name_or_expr in dataset:
+            return dataset[split_name_or_expr]
+        return load_dataset(  # type: ignore[return-value]
+            args.dataset_name,
+            args.dataset_config or None,
+            split=split_name_or_expr,
+        )
+
     # 路径 A：从本地文件读取。
     if args.train_file:
         data_files: dict[str, str] = {"train": args.train_file}
         if args.eval_file:
             data_files["validation"] = args.eval_file
+        if args.test_file:
+            data_files["test"] = args.test_file
         dataset = load_dataset("json", data_files=data_files)
+
+        result = DatasetDict()
         if "validation" not in dataset:
             # 未提供验证集时，从 train 按 9:1 划分 train/validation。
             split = dataset["train"].train_test_split(test_size=0.1, seed=args.seed)
-            return DatasetDict(train=split["train"], validation=split["test"])#type: ignore
-        return DatasetDict(train=dataset["train"], validation=dataset["validation"])#type: ignore
+            result["train"] = split["train"]
+            result["validation"] = split["test"]
+        else:
+            result["train"] = dataset["train"]
+            result["validation"] = dataset["validation"]
 
-    if not args.dataset_name:
-        raise ValueError("Provide either --train_file or --dataset_name.")
+        if "test" in dataset:
+            result["test"] = dataset["test"]
+        return result
 
     # 路径 B：从 HF 数据集读取指定 split。
     dataset = load_dataset(args.dataset_name, args.dataset_config or None)
-    return DatasetDict(
-        train=dataset[args.train_split],
-        validation=dataset[args.eval_split],
-    ) #type: ignore 
+    result = DatasetDict(
+        train=_resolve_hf_split(dataset, args.train_split),
+        validation=_resolve_hf_split(dataset, args.eval_split),
+    )#type: ignore  
+    if args.test_split:
+        try:
+            result["test"] = _resolve_hf_split(dataset, args.test_split)
+        except Exception:
+            # Some datasets have no test split; keep train/validation only.
+            pass
+    return result
 
 
 def load_ner(model_name: str) -> Any:
@@ -77,10 +106,21 @@ def load_ner(model_name: str) -> Any:
         ) from exc
 
 
-def extract_entities(text: str, nlp: Any, max_entities: int) -> str:
-    # 对单条文本做 NER，按“小写归一”去重，并截断最大实体数。
+def extract_entities(text: str, nlp: Any, max_entities: int) -> dict[str, Any]:
+    """
+    Extract entities with type and character-span information.
+
+    Returns
+    -------
+    dict with keys:
+        - entity_text: "; " joined entity texts
+        - entity_types: "; " joined entity type labels
+        - entity_spans: JSON string of [[start, end], ...]
+    """
     doc = nlp(text)
-    dedup: list[str] = []
+    texts: list[str] = []
+    types: list[str] = []
+    spans: list[list[int]] = []
     seen: set[str] = set()
     for ent in doc.ents:
         value = ent.text.strip()
@@ -90,10 +130,16 @@ def extract_entities(text: str, nlp: Any, max_entities: int) -> str:
         if key in seen:
             continue
         seen.add(key)
-        dedup.append(value)
-        if len(dedup) >= max_entities:
+        texts.append(value)
+        types.append(ent.label_)
+        spans.append([int(ent.start_char), int(ent.end_char)])
+        if len(texts) >= max_entities:
             break
-    return " ; ".join(dedup)
+    return {
+        "entity_text": " ; ".join(texts),
+        "entity_types": " ; ".join(types),
+        "entity_spans": json.dumps(spans),
+    }
 
 
 def write_jsonl(rows: list[dict[str, Any]], path: str | Path) -> None:
@@ -115,24 +161,36 @@ def main() -> None:
     text_col = args.text_column
     summary_col = args.summary_column
     entity_col = args.entity_column
+    entity_types_col = args.entity_types_column
+    entity_spans_col = args.entity_spans_column
+    summary_entity_col = args.summary_entity_column
+    summary_entity_types_col = args.summary_entity_types_column
+    summary_entity_spans_col = args.summary_entity_spans_column
 
     def annotate_split(split_name: str) -> list[dict[str, Any]]:
         rows: list[dict[str, Any]] = []
         for item in ds[split_name]:
-            text = str(item.get(text_col, ""))#type: ignore
-            summary = str(item.get(summary_col, ""))#type: ignore
+            text = str(item.get(text_col, ""))  # type: ignore
+            summary = str(item.get(summary_col, ""))  # type: ignore
             if split_name == "train" or args.annotate_eval:
-                # 训练集默认打实体；验证集仅在 annotate_eval=True 时打实体。
-                entities = extract_entities(text=text, nlp=nlp, max_entities=args.max_entities)
+                # Annotate both article and abstract (summary) for train.
+                src_ents = extract_entities(text=text, nlp=nlp, max_entities=args.max_entities)
+                sum_ents = extract_entities(text=summary, nlp=nlp, max_entities=args.max_entities)
                 rows.append(
                     {
                         text_col: text,
                         summary_col: summary,
-                        entity_col: entities,
+                        entity_col: src_ents["entity_text"],
+                        entity_types_col: src_ents["entity_types"],
+                        entity_spans_col: src_ents["entity_spans"],
+                        summary_entity_col: sum_ents["entity_text"],
+                        summary_entity_types_col: sum_ents["entity_types"],
+                        summary_entity_spans_col: sum_ents["entity_spans"],
                     }
                 )
             else:
-                # 默认不改动验证/测试分布：仅保留原始监督字段。
+                # Eval/test: keep only original supervision fields to avoid
+                # leaking entity priors into the evaluation distribution.
                 rows.append(
                     {
                         text_col: text,
@@ -141,17 +199,22 @@ def main() -> None:
                 )
         return rows
 
-    # 生成两个输出文件：
-    # - train：默认包含 entity_column
-    # - validation：默认不包含 entity_column（除非 --annotate_eval）
+    # train：默认包含实体特征
+    # validation/test：默认只保留监督字段（除非 --annotate_eval）
     train_rows = annotate_split("train")
     eval_rows = annotate_split("validation")
     write_jsonl(train_rows, args.output_train)
     write_jsonl(eval_rows, args.output_eval)
+    test_rows: list[dict[str, Any]] = []
+    if "test" in ds:
+        test_rows = annotate_split("test")
+        write_jsonl(test_rows, args.output_test)
 
     print("Preprocessing completed.")
     print(f"Train output: {args.output_train} (rows={len(train_rows)})")
     print(f"Eval output: {args.output_eval} (rows={len(eval_rows)})")
+    if test_rows:
+        print(f"Test output: {args.output_test} (rows={len(test_rows)})")
 
 
 if __name__ == "__main__":

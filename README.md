@@ -46,6 +46,15 @@ print(state.final_summary)
 
 ### 3.1 API 模型（OpenAI-compatible）
 
+**方式一：`.env` 文件（推荐）**
+
+```bash
+cp .env.example .env
+# 编辑 .env 填入 SMART_LLM__API_KEY
+```
+
+**方式二：命令行 export**
+
 ```bash
 export SMART_LLM__USE_MOCK=false
 export SMART_LLM__PROVIDER=openai_compatible
@@ -101,16 +110,19 @@ python data/preprocess_entities.py \
 - 默认只给 `train` 添加 `entity_text`
 - `eval` 默认不标注实体，不影响验证/测试分布
 
-### 5.2 训练
+### 5.2 训练（三层框架）
 
 ```bash
 python finetune/train_lora_mi.py \
-  --train_file data/samples/train_ner.jsonl \
-  --eval_file data/samples/dev_ner.jsonl \
-  --output_dir data/outputs/ft_lora_mi \
+  --train_file data/pubmed/train_ner.jsonl \
+  --eval_file data/pubmed/val_ner.jsonl \
+  --output_dir data/outputs/three_layer \
   --use_entity_prior \
-  --entity_column entity_text \
-  --lambda_mi 0.1
+  --use_link_layer \
+  --use_network_layer \
+  --lambda_node 0.1 \
+  --lambda_link 0.05 \
+  --lambda_network 0.03
 ```
 
 ### 5.3 推理
@@ -140,4 +152,6 @@ pytest -q
 
 完整构建流程与细节说明见：
 
-- [instrument.md](instrument.md)
+- [instruction.md](instruction.md) 详细命令与配置
+- [roadmap.md](roadmap.md) 项目架构与代码原理
+- [docs/three_layer_mi_framework.md](docs/three_layer_mi_framework.md) 三层 MI 对齐框架详解

@@ -66,33 +66,47 @@
 - `alpha=32`
 - `dropout=0.1`
 
-### 3.2 损失函数
+### 3.2 损失函数（三层 MI 对齐框架）
 
-当前实现：
+当前实现将单一的余弦对齐升级为**三层信息对齐框架**：
 
-\[
-L_{total} = L_{mle} + \lambda_{mi} L_{mi}
-\]
+$$
+L_{total} = L_{mle} + \lambda_{node} L_{node} + \lambda_{link} L_{link} + \lambda_{network} L_{network}
+$$
 
-- `L_mle`：标准监督学习损失（模型输出 loss）
-- `L_mi`：源表示与目标表示的余弦对齐损失  
-  \[
-  L_{mi}=1-\cos(h_{source},h_{target})
-  \]
+- `L_mle`：标准 seq2seq 监督损失
+- `L_node`：**节点层** — 实体类型级 InfoNCE 对比学习 + 缺失实体类型惩罚  
+  对每种医学实体类型（如 `CHEMICAL`、`GENE`），分别计算源文与摘要的实体平均 embedding，用 InfoNCE 拉近正样本对；若某类型在源文存在但摘要缺失，施加固定惩罚。
+- `L_link`：**链路层** — 共现实体的 TransE 几何约束  
+  将原文中字符距离小于窗口的实体视为共现，对每对共现类型在摘要中施加 `v_{type_i} + r \approx v_{type_j}` 的 TransE 约束。关系向量 `r` 为可学习参数。
+- `L_network`：**网络层** — 实体共现图的谱嵌入对齐  
+  构建实体共现无向图，计算归一化图拉普拉斯的谱特征（前 `k=8` 个特征向量），经可学习投影后与 decoder 最终 hidden state 做 MSE 对齐。
 
-说明：这是“可微分、可训练、已落地”的 MI 近似项。
+三层损失均只作用于训练集，验证/测试阶段完全关闭。
 
 ### 3.3 医学实体先验（预处理阶段）
 
-实现要求已调整为：
+实现要求：
 
-- **仅训练集标注实体**
+- **仅训练集标注实体**（含摘要端实体）
 - 验证/测试集默认不标注实体，不改变评估分布
+- 预处理同时生成源文与摘要的实体信息
+
+预处理输出字段：
+
+| 字段 | 说明 |
+|------|------|
+| `entity_text` | 源文实体文本（`;` 分隔） |
+| `entity_types` | 源文实体类型（`;` 分隔） |
+| `entity_spans` | 源文实体字符位置（JSON `[[start,end],...]`） |
+| `summary_entities` | 摘要实体文本（`;` 分隔） |
+| `summary_entity_types` | 摘要实体类型（`;` 分隔） |
+| `summary_entity_spans` | 摘要实体字符位置（JSON） |
 
 流程：
 
-1. 先运行 `data/preprocess_entities.py`，使用 `en_ner_bionlp13cg_md` 为 train 生成 `entity_text`
-2. 再运行 `train_lora_mi.py --use_entity_prior --entity_column entity_text`
+1. 运行 `data/preprocess_entities.py`（使用 `en_ner_bionlp13cg_md`）
+2. 运行 `train_lora_mi.py --use_entity_prior [--use_link_layer] [--use_network_layer]`
 
 训练阶段不再在线跑 NER。
 
@@ -110,7 +124,7 @@ L_{total} = L_{mle} + \lambda_{mi} L_{mi}
 
 ### 未实现（可作为后续工作）
 
-- 更严格的信息论 MI 估计器（如 InfoNCE 变体）
+- 开放域关系抽取替代共现窗口
 - 医学实体编码器 `phi(.)` 独立预训练与对齐
 - 细粒度人工事实一致性评测管线
 
@@ -140,7 +154,7 @@ python finetune/train_lora_mi.py \
   --output_dir data/outputs/ft_lora_mi \
   --use_entity_prior \
   --entity_column entity_text \
-  --lambda_mi 0.1
+  --lambda_node 0.1
 ```
 
 ### 5.3 推理（Agent）
