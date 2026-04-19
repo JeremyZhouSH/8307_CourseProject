@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 from dataclasses import asdict
 from pathlib import Path
@@ -17,8 +18,13 @@ from src.summarizer.structured_summarizer import StructuredSummarizer
 from src.utils.io import load_yaml, write_json
 from src.verifier.faithfulness_checker import FaithfulnessChecker
 
+logger = logging.getLogger(__name__)
 
+
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class SummarizationPipeline:
+    # 初始化整条摘要流水线：加载配置、组装模块、准备 LLM 客户端。
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def __init__(
         self,
         config_path: str | Path = "config/default.yaml",
@@ -70,18 +76,24 @@ class SummarizationPipeline:
             local_trust_remote_code=bool(llm_cfg.get("local_trust_remote_code", False)),
         )
 
+    # 解析配置文件路径：相对路径统一映射到项目根目录。
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _resolve_path(self, path_value: str | Path) -> Path:
         path = Path(path_value)
         if path.is_absolute():
             return path
         return (self.project_root / path).resolve()
 
+    # 解析输入/输出路径：缺失时使用默认值，且统一转绝对路径。
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _resolve_io_path(self, path_value: str | Path, fallback: str) -> Path:
         path = Path(path_value) if path_value else Path(fallback)
         if path.is_absolute():
             return path
         return (self.project_root / path).resolve()
 
+    # 把环境变量覆盖到 llm 配置，便于不改 yaml 直接切换模型。
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _resolve_llm_config(self, llm_cfg: dict[str, Any]) -> dict[str, Any]:
         resolved = dict(llm_cfg)
 
@@ -110,16 +122,22 @@ class SummarizationPipeline:
 
         return resolved
 
+    # 构建最终摘要重写 prompt：把结构化摘要序列化后填入模板。
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _build_llm_final_summary_prompt(self, structured_summary: dict[str, Any]) -> str:
         # 结构化结果先序列化再注入 prompt，提升可追溯性。
         serialized = json.dumps(structured_summary, ensure_ascii=False, indent=2)
         return self.prompts.render("final_summary", structured_summary=serialized)
 
+    # 调用 LLM 生成最终摘要，空字符串时返回 None 交由上游回退。
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _generate_final_summary_with_llm(self, structured_summary: dict[str, Any]) -> str | None:
         prompt = self._build_llm_final_summary_prompt(structured_summary)
         result = self.llm_client.complete(prompt).strip()
         return result or None
 
+    # 执行端到端摘要流程，并返回包含中间状态的 PipelineState。
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def run(
         self,
         input_path: str | Path | None = None,
@@ -160,9 +178,12 @@ class SummarizationPipeline:
                 llm_summary = self._generate_final_summary_with_llm(state.structured_summary)
                 if llm_summary:
                     state.final_summary = llm_summary
-            except Exception:
+            except Exception as exc:
                 # 外部 LLM 失败时保留本地确定性摘要，保证流程稳定返回。
-                pass
+                logger.warning(
+                    "LLM final-summary refinement failed, fallback to template summary: %s",
+                    exc,
+                )
 
         # Step 5. 对最终摘要做支持性（faithfulness）启发式校验。
         state.verification = self.verifier.check(

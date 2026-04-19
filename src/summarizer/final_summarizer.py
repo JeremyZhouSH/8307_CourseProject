@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class FinalSummarizer:
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def summarize(self, structured_summary: dict[str, object]) -> str:
         key_info = structured_summary.get("key_info", {})
         if not isinstance(key_info, dict):
@@ -28,6 +30,7 @@ class FinalSummarizer:
 
         return " ".join(sentence if sentence.endswith(".") else sentence + "." for sentence in sentences)
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _join_items(self, items: object) -> str:
         if not isinstance(items, list):
             return ""

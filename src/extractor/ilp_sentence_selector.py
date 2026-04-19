@@ -10,6 +10,7 @@ except Exception:  # pragma: no cover - optional dependency
 
 
 @dataclass
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class SentenceCandidate:
     sentence_id: int
     text: str
@@ -18,9 +19,11 @@ class SentenceCandidate:
     word_count: int
 
 
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class ILPSentenceSelector:
     ROLES: tuple[str, ...] = ("objective", "methods", "results", "limitations")
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def __init__(
         self,
         word_budget: int = 200,
@@ -36,6 +39,7 @@ class ILPSentenceSelector:
             role: max(0, int((min_role_coverage or {}).get(role, 0))) for role in self.ROLES
         }
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def select(self, candidates: list[SentenceCandidate]) -> list[SentenceCandidate]:
         # 先过滤明显无效句子，减少后续优化规模。
         filtered = [
@@ -52,6 +56,7 @@ class ILPSentenceSelector:
 
         return sorted(chosen, key=lambda candidate: candidate.sentence_id)
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _select_with_ilp(self, candidates: list[SentenceCandidate]) -> list[SentenceCandidate] | None:
         if pulp is None:
             return None
@@ -137,6 +142,7 @@ class ILPSentenceSelector:
             return None
         return selected
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _select_with_greedy(self, candidates: list[SentenceCandidate]) -> list[SentenceCandidate]:
         # 回退策略：先满足角色覆盖，再按性价比(分数/词数)补句。
         selected: list[SentenceCandidate] = []
@@ -178,6 +184,7 @@ class ILPSentenceSelector:
         smallest = min(candidates, key=lambda c: c.word_count)
         return [smallest] if smallest.word_count <= self.word_budget else []
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _redundancy_penalty(
         self,
         candidate: SentenceCandidate,
@@ -188,6 +195,7 @@ class ILPSentenceSelector:
         max_sim = max(self._sentence_similarity(candidate.text, item.text) for item in selected)
         return self.redundancy_penalty * max_sim
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _sentence_similarity(self, left: str, right: str) -> float:
         left_tokens = self._tokens(left)
         right_tokens = self._tokens(right)
@@ -197,5 +205,6 @@ class ILPSentenceSelector:
         union = left_tokens | right_tokens
         return len(overlap) / max(1, len(union))
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _tokens(self, text: str) -> set[str]:
         return {token for token in re.findall(r"[A-Za-z][A-Za-z\-]{1,}", text.lower())}

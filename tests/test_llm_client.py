@@ -5,6 +5,7 @@ import pytest
 from src.llm.client import LLMClient
 
 
+# 测试函数作用：验证一个具体场景，确保行为与预期一致。
 def test_complete_returns_mock_response() -> None:
     client = LLMClient(use_mock=True, model="local-test")
     result = client.complete("Hello\nWorld")
@@ -13,6 +14,7 @@ def test_complete_returns_mock_response() -> None:
     assert "Hello World" in result
 
 
+# 测试函数作用：验证一个具体场景，确保行为与预期一致。
 def test_complete_raises_when_api_key_missing(monkeypatch: pytest.MonkeyPatch) -> None:
     env_name = "OPENAI_API_KEY_FOR_TEST"
     monkeypatch.delenv(env_name, raising=False)
@@ -23,6 +25,7 @@ def test_complete_raises_when_api_key_missing(monkeypatch: pytest.MonkeyPatch) -
         client.complete("ping")
 
 
+# 测试函数作用：验证一个具体场景，确保行为与预期一致。
 def test_complete_real_branch_builds_payload_and_returns_text(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -39,6 +42,7 @@ def test_complete_real_branch_builds_payload_and_returns_text(
 
     captured: dict[str, object] = {}
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def fake_post_json(
         url: str,
         payload: dict[str, object],
@@ -71,9 +75,11 @@ def test_complete_real_branch_builds_payload_and_returns_text(
     ]
 
 
+# 测试函数作用：验证一个具体场景，确保行为与预期一致。
 def test_complete_real_branch_supports_list_content(monkeypatch: pytest.MonkeyPatch) -> None:
     client = LLMClient(use_mock=False, model="gpt-test", api_key="sk-test")
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def fake_post_json(
         url: str,
         payload: dict[str, object],
@@ -99,6 +105,7 @@ def test_complete_real_branch_supports_list_content(monkeypatch: pytest.MonkeyPa
     assert result == "First line\nSecond line"
 
 
+# 测试函数作用：验证一个具体场景，确保行为与预期一致。
 def test_complete_real_branch_avoids_double_v1_in_url(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -111,6 +118,7 @@ def test_complete_real_branch_avoids_double_v1_in_url(
     )
     captured: dict[str, object] = {}
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def fake_post_json(
         url: str,
         payload: dict[str, object],
@@ -127,6 +135,7 @@ def test_complete_real_branch_avoids_double_v1_in_url(
     assert captured["url"] == "https://api.deepseek.com/v1/chat/completions"
 
 
+# 测试函数作用：验证一个具体场景，确保行为与预期一致。
 def test_complete_hf_local_branch_does_not_require_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
     client = LLMClient(
         use_mock=False,
@@ -141,6 +150,7 @@ def test_complete_hf_local_branch_does_not_require_api_key(monkeypatch: pytest.M
     assert result == "local medical summary"
 
 
+# 测试函数作用：验证一个具体场景，确保行为与预期一致。
 def test_complete_raises_for_unsupported_provider() -> None:
     client = LLMClient(use_mock=False, provider="unknown-provider", model="x")
 

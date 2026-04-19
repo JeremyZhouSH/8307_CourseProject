@@ -18,6 +18,7 @@ ROLES: tuple[str, ...] = ("objective", "methods", "results", "limitations", "oth
 
 
 @dataclass
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class SentenceUnit:
     text: str
     section_title: str
@@ -28,6 +29,7 @@ class SentenceUnit:
 
 
 @dataclass
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class TaggedSentence:
     text: str
     section_title: str
@@ -37,6 +39,7 @@ class TaggedSentence:
     word_count: int
 
 
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class SentenceRoleTagger:
     SECTION_BUCKETS = {
         "objective": {"abstract", "introduction", "background", "motivation"},
@@ -88,10 +91,12 @@ class SentenceRoleTagger:
         },
     }
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def __init__(self, method: str = "crf") -> None:
         # 支持 crf/hmm/heuristic；非法值会在 _predict 中走 heuristic。
         self.method = method.lower().strip()
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def tag_sections(self, sections: list[Section]) -> list[TaggedSentence]:
         units = self._build_sentence_units(sections)
         if not units:
@@ -112,6 +117,7 @@ class SentenceRoleTagger:
             )
         return tagged
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _predict(self, units: list[SentenceUnit]) -> list[tuple[str, dict[str, float]]]:
         # 主分发逻辑：优先 CRF，再退 HMM，再退启发式，保证流程不断。
         if self.method == "crf":
@@ -131,6 +137,7 @@ class SentenceRoleTagger:
 
         return self._predict_with_heuristic(units)
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _predict_with_crf(self, units: list[SentenceUnit]) -> list[tuple[str, dict[str, float]]] | None:
         if sklearn_crfsuite is None:
             return None
@@ -164,6 +171,7 @@ class SentenceRoleTagger:
             predictions.append((label if label in ROLES else "other", self._normalize_scores(scores)))
         return predictions
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _predict_with_hmm(self, units: list[SentenceUnit]) -> list[tuple[str, dict[str, float]]] | None:
         if not units:
             return None
@@ -214,6 +222,7 @@ class SentenceRoleTagger:
             predictions.append((role, emission))
         return predictions
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _predict_with_heuristic(self, units: list[SentenceUnit]) -> list[tuple[str, dict[str, float]]]:
         output: list[tuple[str, dict[str, float]]] = []
         for unit in units:
@@ -222,6 +231,7 @@ class SentenceRoleTagger:
             output.append((label, scores))
         return output
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _sentence_features(self, units: Sequence[SentenceUnit], index: int) -> dict[str, object]:
         unit = units[index]
         lower = unit.text.lower()
@@ -262,6 +272,7 @@ class SentenceRoleTagger:
 
         return feature
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _heuristic_scores(self, unit: SentenceUnit) -> dict[str, float]:
         lower = unit.text.lower()
         section_bucket = self._bucket_for_title(unit.section_title)
@@ -291,6 +302,7 @@ class SentenceRoleTagger:
 
         return self._normalize_scores(scores)
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _transition_log_probs(self) -> dict[str, dict[str, float]]:
         # 转移矩阵体现论文常见叙事顺序：
         # objective -> methods -> results -> limitations。
@@ -337,6 +349,7 @@ class SentenceRoleTagger:
             },
         }
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _start_log_probs(self) -> dict[str, float]:
         return {
             "objective": math.log(0.45),
@@ -346,6 +359,7 @@ class SentenceRoleTagger:
             "other": math.log(0.05),
         }
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _build_sentence_units(self, sections: list[Section]) -> list[SentenceUnit]:
         units: list[SentenceUnit] = []
         for section_index, section in enumerate(sections):
@@ -369,6 +383,7 @@ class SentenceRoleTagger:
             unit.total_sentences = total
         return units
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _weak_label(self, unit: SentenceUnit) -> str:
         section_bucket = self._bucket_for_title(unit.section_title)
         if section_bucket:
@@ -376,6 +391,7 @@ class SentenceRoleTagger:
         scores = self._heuristic_scores(unit)
         return max(scores, key=scores.get)
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _split_sentences(self, text: str) -> list[str]:
         parts = re.split(r"(?<=[.!?])\s+", text.strip())
         sentences = [part.strip() for part in parts if part.strip()]
@@ -383,6 +399,7 @@ class SentenceRoleTagger:
             return [text.strip()]
         return sentences
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _bucket_for_title(self, title: str) -> str | None:
         normalized = title.lower()
         for bucket, hints in self.SECTION_BUCKETS.items():
@@ -390,10 +407,12 @@ class SentenceRoleTagger:
                 return bucket
         return None
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _keyword_hits(self, sentence_lower: str, role: str) -> int:
         keywords = self.ROLE_KEYWORDS.get(role, set())
         return sum(1 for keyword in keywords if keyword in sentence_lower)
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _position_bin(self, index: int, total: int) -> str:
         if total <= 1:
             return "single"
@@ -408,9 +427,11 @@ class SentenceRoleTagger:
             return "late"
         return "very_late"
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _word_count(self, text: str) -> int:
         return len(re.findall(r"[A-Za-z0-9]+(?:-[A-Za-z0-9]+)?", text))
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _normalize_scores(self, scores: dict[str, float]) -> dict[str, float]:
         cleaned = {role: max(value, 1e-9) for role, value in scores.items()}
         total = sum(cleaned.values())

@@ -13,6 +13,7 @@ if _ENV_PATH.exists():
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
 
+# 函数作用：构建命令行参数解析器并定义可配置项。
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run inference with a fine-tuned seq2seq model.")
     parser.add_argument("--model_path", required=True, help="Path to local model dir.")
@@ -23,6 +24,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
+# 函数作用：程序入口，串联参数解析与主执行流程。
 def main() -> None:
     parser = build_arg_parser()
     args = parser.parse_args()

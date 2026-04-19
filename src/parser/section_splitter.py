@@ -5,11 +5,13 @@ from dataclasses import dataclass
 
 
 @dataclass
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class Section:
     title: str
     content: str
 
 
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class SectionSplitter:
     # 常见英文章节名词表，用于标题识别。
     COMMON_HEADINGS = {
@@ -29,9 +31,11 @@ class SectionSplitter:
         "future work",
     }
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def __init__(self, max_sections: int = 20) -> None:
         self.max_sections = max_sections
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def split(self, text: str) -> list[Section]:
         sections: list[Section] = []
         current_title = "Document"
@@ -59,11 +63,13 @@ class SectionSplitter:
 
         return sections[: self.max_sections]
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _append_section(self, sections: list[Section], title: str, lines: list[str]) -> None:
         content = "\n".join(lines).strip()
         if content:
             sections.append(Section(title=title, content=content))
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _is_heading(self, line: str) -> bool:
         # 过长文本或句末标点通常不是标题。
         if len(line) > 90:
@@ -83,6 +89,7 @@ class SectionSplitter:
 
         return False
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _normalize_title(self, line: str) -> str:
         title = re.sub(r"^\d+(?:\.\d+)*\s+", "", line).strip()
         title = re.sub(r"\s+", " ", title)

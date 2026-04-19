@@ -18,6 +18,7 @@ if str(ROOT) not in sys.path:
 from src.pipeline import SummarizationPipeline
 
 
+# 函数作用：程序入口，串联参数解析与主执行流程。
 def main() -> None:
     # demo 使用默认配置跑完整流水线。
     pipeline = SummarizationPipeline()

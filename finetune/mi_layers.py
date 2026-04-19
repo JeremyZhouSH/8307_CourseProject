@@ -15,6 +15,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+# 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
 def info_nce(
     anchor: torch.Tensor,
     positive: torch.Tensor,
@@ -53,6 +54,7 @@ def info_nce(
     return (loss_a + loss_b) / 2.0
 
 
+# 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
 def spectral_embedding(
     adjacency: torch.Tensor,
     k: int = 8,
@@ -104,6 +106,7 @@ def spectral_embedding(
     return graph_vec  # [k]
 
 
+# 函数作用：内部辅助逻辑，服务当前类/模块主流程。
 def _mean_pool_entity_embeddings(
     entity_emb: torch.Tensor,
     entity_mask: torch.Tensor,
@@ -126,6 +129,7 @@ def _mean_pool_entity_embeddings(
     return summed / denom
 
 
+# 函数作用：内部辅助逻辑，服务当前类/模块主流程。
 def _build_cooccurrence_pairs(
     spans: List[List[int]],
     window: int = 200,
@@ -159,11 +163,13 @@ def _build_cooccurrence_pairs(
     return pairs
 
 
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class NodeLayerLoss(nn.Module):
     """
     Entity-type-level InfoNCE with missing-type penalty.
     """
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def __init__(
         self,
         missing_penalty: float = 0.5,
@@ -173,6 +179,7 @@ class NodeLayerLoss(nn.Module):
         self.missing_penalty = missing_penalty
         self.temperature = temperature
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def forward(
         self,
         src_entity_emb: torch.Tensor,      # [B, N_src, T, D]
@@ -242,11 +249,13 @@ class NodeLayerLoss(nn.Module):
         return total_loss / valid_samples
 
 
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class LinkLayerLoss(nn.Module):
     """
     TransE geometric constraint on co-occurring entity-type pairs.
     """
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def __init__(
         self,
         hidden_dim: int,
@@ -256,6 +265,7 @@ class LinkLayerLoss(nn.Module):
         self.relation_vector = nn.Parameter(torch.randn(hidden_dim) * 0.01)
         self.cooccurrence_window = cooccurrence_window
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def forward(
         self,
         src_entity_emb: torch.Tensor,       # [B, N_src, T, D]
@@ -325,12 +335,14 @@ class LinkLayerLoss(nn.Module):
         return total_loss / valid_pairs
 
 
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class NetworkLayerLoss(nn.Module):
     """
     Align spectral graph embedding of the entity co-occurrence graph
     to the decoder's final hidden state.
     """
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def __init__(
         self,
         k: int = 8,
@@ -342,6 +354,7 @@ class NetworkLayerLoss(nn.Module):
         self.cooccurrence_window = cooccurrence_window
         self.projection = nn.Linear(k, hidden_dim)
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def forward(
         self,
         src_entity_emb: torch.Tensor,       # [B, N_src, T, D]

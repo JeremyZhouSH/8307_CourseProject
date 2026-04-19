@@ -8,6 +8,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class PipelineState:
     # 输入输出路径与各阶段中间结果，便于调试与落盘。
     input_path: str = ""

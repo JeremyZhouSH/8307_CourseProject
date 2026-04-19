@@ -38,6 +38,7 @@ from datasets import load_dataset
 from src.verifier.faithfulness_checker import FaithfulnessChecker
 
 
+# 函数作用：构建命令行参数解析器并定义可配置项。
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Evaluate summarization outputs.")
     parser.add_argument("--pred_file", required=True, help="预测摘要 JSONL（每行含 prediction）")
@@ -53,6 +54,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
+# 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
 def load_jsonl(path: str) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     with Path(path).open("r", encoding="utf-8") as f:
@@ -63,6 +65,7 @@ def load_jsonl(path: str) -> list[dict[str, Any]]:
     return rows
 
 
+# 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
 def extract_entities(text: str, nlp: spacy.Language) -> list[tuple[str, str]]:
     """返回 [(entity_text_lower, entity_type), ...]"""
     doc = nlp(text)
@@ -73,6 +76,7 @@ def extract_entities(text: str, nlp: spacy.Language) -> list[tuple[str, str]]:
     ]
 
 
+# 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
 def compute_entity_metrics(pred_text: str, ref_text: str, nlp: spacy.Language) -> dict[str, float]:
     pred_ents = extract_entities(pred_text, nlp)
     ref_ents = extract_entities(ref_text, nlp)
@@ -95,6 +99,7 @@ def compute_entity_metrics(pred_text: str, ref_text: str, nlp: spacy.Language) -
     }
 
 
+# 函数作用：程序入口，串联参数解析与主执行流程。
 def main() -> None:
     parser = build_arg_parser()
     args = parser.parse_args()

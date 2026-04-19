@@ -24,6 +24,7 @@ from transformers import (
 )
 
 
+# 函数作用：构建命令行参数解析器并定义可配置项。
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Fine-tune a seq2seq model for summarization.")
 
@@ -54,6 +55,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
+# 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
 def load_data(args: argparse.Namespace) -> DatasetDict:
     if args.train_file:
         data_files: dict[str, str] = {"train": args.train_file}
@@ -78,6 +80,7 @@ def load_data(args: argparse.Namespace) -> DatasetDict:
     )
 
 
+# 函数作用：程序入口，串联参数解析与主执行流程。
 def main() -> None:
     parser = build_arg_parser()
     args = parser.parse_args()
@@ -89,6 +92,7 @@ def main() -> None:
     text_col = args.text_column
     summary_col = args.summary_column
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def preprocess(batch: dict[str, list[Any]]) -> dict[str, Any]:
         inputs = [str(x) for x in batch[text_col]]
         targets = [str(x) for x in batch[summary_col]]
@@ -115,6 +119,7 @@ def main() -> None:
 
     rouge = evaluate.load("rouge")
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def compute_metrics(eval_pred: tuple[np.ndarray, np.ndarray]) -> dict[str, float]:
         preds, labels = eval_pred
         decoded_preds = tokenizer.batch_decode(preds, skip_special_tokens=True)

@@ -8,6 +8,7 @@ from typing import Any
 from datasets import Dataset, DatasetDict, load_dataset
 
 
+# 函数作用：构建命令行参数解析器并定义可配置项。
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Preprocess dataset and annotate biomedical entities.")
     # 数据来源：二选一
@@ -45,7 +46,9 @@ def build_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
+# 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
 def load_data(args: argparse.Namespace) -> DatasetDict:
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _resolve_hf_split(dataset: DatasetDict, split_name_or_expr: str) -> Dataset:
         if split_name_or_expr in dataset:
             return dataset[split_name_or_expr]
@@ -93,6 +96,7 @@ def load_data(args: argparse.Namespace) -> DatasetDict:
     return result
 
 
+# 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
 def load_ner(model_name: str) -> Any:
     try:
         import spacy
@@ -106,6 +110,7 @@ def load_ner(model_name: str) -> Any:
         ) from exc
 
 
+# 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
 def extract_entities(text: str, nlp: Any, max_entities: int) -> dict[str, Any]:
     """
     Extract entities with type and character-span information.
@@ -142,6 +147,7 @@ def extract_entities(text: str, nlp: Any, max_entities: int) -> dict[str, Any]:
     }
 
 
+# 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
 def write_jsonl(rows: list[dict[str, Any]], path: str | Path) -> None:
     # 统一写出 JSONL（每行一个样本），便于下游 HF json loader 直接读取。
     resolved = Path(path)
@@ -151,6 +157,7 @@ def write_jsonl(rows: list[dict[str, Any]], path: str | Path) -> None:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
+# 函数作用：程序入口，串联参数解析与主执行流程。
 def main() -> None:
     parser = build_arg_parser()
     args = parser.parse_args()
@@ -167,6 +174,7 @@ def main() -> None:
     summary_entity_types_col = args.summary_entity_types_column
     summary_entity_spans_col = args.summary_entity_spans_column
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def annotate_split(split_name: str) -> list[dict[str, Any]]:
         rows: list[dict[str, Any]] = []
         for item in ds[split_name]:

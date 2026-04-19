@@ -7,21 +7,26 @@ from src.agent.state import PipelineState
 
 
 @dataclass
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class AgentAction:
     name: str
     params: dict[str, Any] = field(default_factory=dict)
     reason: str = ""
 
 
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class AgentPlanner:
     """根据当前状态选择下一步动作。"""
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def __init__(self) -> None:
         self._forced_actions: list[AgentAction] = []
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def enqueue(self, action: AgentAction) -> None:
         self._forced_actions.append(action)
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def next_action(self, state: PipelineState) -> AgentAction:
         if self._forced_actions:
             return self._forced_actions.pop(0)
@@ -52,6 +57,7 @@ class AgentPlanner:
             return AgentAction(name="write_output", reason="写出 JSON 结果")
         return AgentAction(name="finish", reason="流程完成")
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _has_key_info(self, state: PipelineState) -> bool:
         if not state.key_info:
             return False

@@ -5,6 +5,7 @@ from src.extractor.key_info_extractor import KeyInfoExtractor
 from src.parser.section_splitter import SectionSplitter
 
 
+# 测试函数作用：验证一个具体场景，确保行为与预期一致。
 def test_ilp_selector_respects_budget_and_role_coverage() -> None:
     selector = ILPSentenceSelector(
         word_budget=20,
@@ -68,6 +69,7 @@ def test_ilp_selector_respects_budget_and_role_coverage() -> None:
     assert "limitations" in selected_roles
 
 
+# 测试函数作用：验证一个具体场景，确保行为与预期一致。
 def test_key_info_extractor_ilp_strategy_returns_structured_info() -> None:
     text = """
 ABSTRACT

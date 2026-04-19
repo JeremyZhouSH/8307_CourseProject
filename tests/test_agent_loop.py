@@ -8,6 +8,7 @@ from src.agent.reviewer import AgentReviewer
 from src.pipeline import SummarizationPipeline
 
 
+# 测试函数作用：验证一个具体场景，确保行为与预期一致。
 def test_agent_controller_runs_planning_loop(tmp_path) -> None:
     input_text = """
 ABSTRACT
@@ -42,6 +43,7 @@ The workflow produces stable summaries in local execution.
     assert memory_file.read_text(encoding="utf-8").strip()
 
 
+# 测试函数作用：验证一个具体场景，确保行为与预期一致。
 def test_agent_controller_can_retry_when_quality_low(tmp_path) -> None:
     input_text = """
 INTRODUCTION
@@ -73,6 +75,7 @@ The system keeps coherent output.
     assert output_file.exists()
 
 
+# 测试函数作用：验证一个具体场景，确保行为与预期一致。
 def test_agent_controller_can_request_clarification(tmp_path) -> None:
     output_file = tmp_path / "clarify_summary.json"
     missing_input = tmp_path / "missing_paper.txt"
@@ -95,6 +98,7 @@ def test_agent_controller_can_request_clarification(tmp_path) -> None:
     assert state.output_written is False
 
 
+# 测试函数作用：验证一个具体场景，确保行为与预期一致。
 def test_agent_controller_can_resume_with_clarification_answers(tmp_path) -> None:
     input_text = """
 ABSTRACT

@@ -17,3 +17,4 @@ scispacy>=0.5.4,<1.0
 bert-score>=0.3.13,<1.0
 sacrebleu>=2.3,<3.0
 tqdm>=4.65,<5.0
+matplotlib>=3.7,<4.0

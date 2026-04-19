@@ -12,9 +12,12 @@ from src.agent.tools import AgentTools
 from src.pipeline import SummarizationPipeline
 
 
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class AgentController:
     """带决策与规划循环的 Agent 控制器。"""
 
+    # 组装 Planner/Reviewer/Tools，并从配置读取重试与记忆参数。
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def __init__(
         self,
         pipeline: SummarizationPipeline | None = None,
@@ -42,6 +45,8 @@ class AgentController:
             dialogue=self.dialogue,
         )
 
+    # 执行 Agent 主循环：plan -> act -> review -> retry/finish。
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def run(
         self,
         input_path: str | Path | None = None,
@@ -58,6 +63,7 @@ class AgentController:
         effective_request = str(answers.get("user_request", user_request)).strip()
         state.user_request = effective_request
 
+        # 首步强制做路径解析，保证后续工具可直接读取 state 路径字段。
         self.planner.enqueue(
             AgentAction(
                 name="resolve_paths",
@@ -71,10 +77,12 @@ class AgentController:
             error: Exception | None = None
 
             try:
+                # act：执行单个工具动作，异常由 reviewer 决定是否重试。
                 self.tools.execute(action, state)
             except Exception as exc:  # pragma: no cover - errors handled by reviewer branch
                 error = exc
 
+            # review：记录执行结果，并产出下一步决策（重试/继续/终止）。
             decision = self.reviewer.review(state=state, action=action, error=error)
             state.step_history.append(
                 {
@@ -98,9 +106,11 @@ class AgentController:
             if action.name == "finish":
                 break
 
+        # 兜底写文件：即便规划提前 finish，只要有 verification 就写出结果。
         if not state.output_written and state.verification:
             self.tools.execute(AgentAction(name="write_output", reason="兜底写输出"), state)
 
+        # 将本次执行记录写入长期记忆，供后续策略检索使用。
         if state.verification:
             self.memory_store.append(
                 MemoryRecord(

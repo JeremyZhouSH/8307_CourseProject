@@ -6,9 +6,11 @@ from typing import Any
 from urllib import error, request
 
 
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class LLMClient:
     """最小可用 LLM 客户端：支持 mock、OpenAI 兼容 API、HF 本地推理。"""
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def __init__(
         self,
         use_mock: bool = True,
@@ -47,6 +49,7 @@ class LLMClient:
         self._local_tokenizer: Any = None
         self._local_model: Any = None
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def complete(self, prompt: str) -> str:
         if self.use_mock:
             # mock 模式返回可读预览，便于离线调试。
@@ -60,6 +63,7 @@ class LLMClient:
             return self._complete_local(prompt)
         raise ValueError(f"Unsupported LLM provider: {self.provider}")
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _complete_openai_compatible(self, prompt: str) -> str:
         if not self.api_key:
             raise ValueError(
@@ -77,6 +81,7 @@ class LLMClient:
             raise RuntimeError("LLM response did not include assistant content.")
         return content
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _build_payload(self, prompt: str) -> dict[str, Any]:
         messages: list[dict[str, str]] = []
         if self.system_prompt:
@@ -92,6 +97,7 @@ class LLMClient:
             payload["max_tokens"] = self.max_tokens
         return payload
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _chat_url(self) -> str:
         endpoint = self.chat_endpoint
         # 防止 base_url 与 endpoint 同时带 /v1 导致重复路径。
@@ -99,6 +105,7 @@ class LLMClient:
             endpoint = endpoint[3:]
         return f"{self.base_url}{endpoint}"
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _post_json(
         self,
         url: str,
@@ -126,6 +133,7 @@ class LLMClient:
             raise RuntimeError("LLM response JSON root must be an object.")
         return data
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _extract_content(self, response: dict[str, Any]) -> str:
         # 兼容 Responses 风格字段。
         output_text = response.get("output_text")
@@ -162,6 +170,7 @@ class LLMClient:
 
         return ""
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _complete_local(self, prompt: str) -> str:
         tokenizer, model = self._ensure_local_model()
         full_prompt = self._build_local_prompt(prompt)
@@ -189,11 +198,13 @@ class LLMClient:
         fallback = tokenizer.decode(generated, skip_special_tokens=True).strip()
         return fallback
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _build_local_prompt(self, prompt: str) -> str:
         if not self.system_prompt:
             return prompt
         return f"{self.system_prompt}\n\n{prompt}"
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _ensure_local_model(self) -> tuple[Any, Any]:
         if self._local_tokenizer is not None and self._local_model is not None:
             return self._local_tokenizer, self._local_model
@@ -231,6 +242,7 @@ class LLMClient:
         self._local_model = model
         return tokenizer, model
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _parse_torch_dtype(self, torch_module: Any, value: str) -> Any:
         normalized = (value or "auto").strip().lower()
         if normalized in {"auto", ""}:

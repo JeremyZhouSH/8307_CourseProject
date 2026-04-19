@@ -8,6 +8,7 @@ from src.agent.state import PipelineState
 
 
 @dataclass
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class ClarificationField:
     name: str
     prompt: str
@@ -16,11 +17,13 @@ class ClarificationField:
 
 
 @dataclass
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class ClarificationRequest:
     question_id: str
     question: str
     fields: list[ClarificationField]
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def to_dict(self) -> dict[str, Any]:
         return {
             "question_id": self.question_id,
@@ -29,9 +32,11 @@ class ClarificationRequest:
         }
 
 
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class DialogueManager:
     """对话澄清：在关键输入缺失或目标不明确时暂停并提问。"""
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def clarify(self, state: PipelineState) -> ClarificationRequest | None:
         fields: list[ClarificationField] = []
         request = state.user_request.strip()

@@ -15,7 +15,9 @@ from finetune.mi_layers import (
 )
 
 
+# 测试类作用：组织同一主题的测试用例，覆盖关键行为。
 class TestInfoNCE:
+    # 测试函数作用：验证一个具体场景，确保行为与预期一致。
     def test_basic_shape_and_range(self):
         anchor = torch.randn(4, 16)
         positive = torch.randn(4, 16)
@@ -23,6 +25,7 @@ class TestInfoNCE:
         assert loss.ndim == 0
         assert loss.item() >= 0.0
 
+    # 测试函数作用：验证一个具体场景，确保行为与预期一致。
     def test_single_sample_fallback(self):
         anchor = torch.randn(1, 8)
         positive = torch.randn(1, 8)
@@ -30,12 +33,15 @@ class TestInfoNCE:
         assert loss.ndim == 0
         assert 0.0 <= loss.item() <= 2.0
 
+    # 测试函数作用：验证一个具体场景，确保行为与预期一致。
     def test_empty_tensor(self):
         loss = info_nce(torch.tensor([]), torch.tensor([]))
         assert loss.item() == 0.0
 
 
+# 测试类作用：组织同一主题的测试用例，覆盖关键行为。
 class TestSpectralEmbedding:
+    # 测试函数作用：验证一个具体场景，确保行为与预期一致。
     def test_complete_graph(self):
         n = 5
         adj = torch.ones(n, n) - torch.eye(n)
@@ -43,6 +49,7 @@ class TestSpectralEmbedding:
         assert vec.shape == (4,)
         assert torch.isfinite(vec).all()
 
+    # 测试函数作用：验证一个具体场景，确保行为与预期一致。
     def test_line_graph(self):
         n = 4
         adj = torch.zeros(n, n)
@@ -52,19 +59,23 @@ class TestSpectralEmbedding:
         vec = spectral_embedding(adj, k=3)
         assert vec.shape == (3,)
 
+    # 测试函数作用：验证一个具体场景，确保行为与预期一致。
     def test_padded_when_graph_small(self):
         adj = torch.zeros(2, 2)
         adj[0, 1] = adj[1, 0] = 1.0
         vec = spectral_embedding(adj, k=8)
         assert vec.shape == (8,)
 
+    # 测试函数作用：验证一个具体场景，确保行为与预期一致。
     def test_empty_graph(self):
         vec = spectral_embedding(torch.zeros(0, 0), k=4)
         assert vec.shape == (4,)
         assert (vec == 0.0).all()
 
 
+# 测试类作用：组织同一主题的测试用例，覆盖关键行为。
 class TestBuildCooccurrencePairs:
+    # 测试函数作用：验证一个具体场景，确保行为与预期一致。
     def test_basic_window(self):
         spans = [[0, 10], [50, 60], [300, 310]]
         pairs = _build_cooccurrence_pairs(spans, window=200)
@@ -72,6 +83,7 @@ class TestBuildCooccurrencePairs:
         assert (0, 2) not in pairs
         assert (1, 2) not in pairs
 
+    # 测试函数作用：验证一个具体场景，确保行为与预期一致。
     def test_skips_negative_spans(self):
         spans = [[0, 10], [-1, -1], [50, 60]]
         pairs = _build_cooccurrence_pairs(spans, window=200)
@@ -79,11 +91,14 @@ class TestBuildCooccurrencePairs:
         assert all(i != 1 and j != 1 for i, j in pairs)
 
 
+# 测试类作用：组织同一主题的测试用例，覆盖关键行为。
 class TestNodeLayerLoss:
     @pytest.fixture
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def node_loss(self):
         return NodeLayerLoss(missing_penalty=0.5, temperature=0.07)
 
+    # 测试函数作用：验证一个具体场景，确保行为与预期一致。
     def test_same_types_present(self, node_loss):
         # 2 samples, 3 entities each, token_len=4, hidden=8
         src_emb = torch.randn(2, 3, 4, 8)
@@ -98,6 +113,7 @@ class TestNodeLayerLoss:
         assert loss.ndim == 0
         assert loss.item() >= 0.0
 
+    # 测试函数作用：验证一个具体场景，确保行为与预期一致。
     def test_missing_type_penalty(self, node_loss):
         src_emb = torch.randn(1, 2, 4, 8)
         src_mask = torch.ones(1, 2, 4, dtype=torch.long)
@@ -111,6 +127,7 @@ class TestNodeLayerLoss:
         # Should include missing penalty for GENE.
         assert loss.item() >= 0.25  # at least partial penalty
 
+    # 测试函数作用：验证一个具体场景，确保行为与预期一致。
     def test_all_pad_entities(self, node_loss):
         src_emb = torch.randn(1, 2, 4, 8)
         src_mask = torch.ones(1, 2, 4, dtype=torch.long)
@@ -124,11 +141,14 @@ class TestNodeLayerLoss:
         assert loss.item() == 0.0
 
 
+# 测试类作用：组织同一主题的测试用例，覆盖关键行为。
 class TestLinkLayerLoss:
     @pytest.fixture
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def link_loss(self):
         return LinkLayerLoss(hidden_dim=8, cooccurrence_window=200)
 
+    # 测试函数作用：验证一个具体场景，确保行为与预期一致。
     def test_basic_transe_constraint(self, link_loss):
         src_emb = torch.randn(1, 3, 4, 8)
         src_mask = torch.ones(1, 3, 4, dtype=torch.long)
@@ -146,6 +166,7 @@ class TestLinkLayerLoss:
         assert loss.ndim == 0
         assert loss.item() >= 0.0
 
+    # 测试函数作用：验证一个具体场景，确保行为与预期一致。
     def test_no_cooccurrence_pairs(self, link_loss):
         src_emb = torch.randn(1, 2, 4, 8)
         src_mask = torch.ones(1, 2, 4, dtype=torch.long)
@@ -163,11 +184,14 @@ class TestLinkLayerLoss:
         assert loss.item() == 0.0
 
 
+# 测试类作用：组织同一主题的测试用例，覆盖关键行为。
 class TestNetworkLayerLoss:
     @pytest.fixture
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def network_loss(self):
         return NetworkLayerLoss(k=4, hidden_dim=8, cooccurrence_window=200)
 
+    # 测试函数作用：验证一个具体场景，确保行为与预期一致。
     def test_basic_graph_alignment(self, network_loss):
         src_emb = torch.randn(1, 5, 4, 8)
         src_mask = torch.ones(1, 5, 4, dtype=torch.long)
@@ -179,6 +203,7 @@ class TestNetworkLayerLoss:
         assert loss.ndim == 0
         assert loss.item() >= 0.0
 
+    # 测试函数作用：验证一个具体场景，确保行为与预期一致。
     def test_too_few_entities(self, network_loss):
         src_emb = torch.randn(1, 2, 4, 8)
         src_mask = torch.ones(1, 2, 4, dtype=torch.long)

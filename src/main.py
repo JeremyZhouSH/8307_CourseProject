@@ -20,6 +20,7 @@ if str(ROOT) not in sys.path:
 from src.pipeline import SummarizationPipeline
 
 
+# 函数作用：构建命令行参数解析器并定义可配置项。
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run the summarization pipeline.")
     parser.add_argument("--config", default="config/default.yaml", help="Path to config YAML")
@@ -29,6 +30,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
+# 函数作用：程序入口，串联参数解析与主执行流程。
 def main() -> None:
     parser = build_arg_parser()
     args = parser.parse_args()

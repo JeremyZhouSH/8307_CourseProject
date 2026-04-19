@@ -6,6 +6,7 @@ from pathlib import Path
 from src.pipeline import SummarizationPipeline
 
 
+# 测试函数作用：验证一个具体场景，确保行为与预期一致。
 def test_pipeline_runs_end_to_end(tmp_path) -> None:
     input_text = """
 ABSTRACT
@@ -34,6 +35,7 @@ The workflow generates coherent summaries with stable behavior.
     assert len(payload["sections"]) >= 1
 
 
+# 测试函数作用：验证一个具体场景，确保行为与预期一致。
 def test_pipeline_fallback_when_llm_call_fails(monkeypatch, tmp_path) -> None:
     input_text = """
 INTRODUCTION
@@ -55,6 +57,7 @@ The workflow remains stable under failures.
         prompts_path=Path("config/prompts.yaml"),
     )
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def fail_complete(prompt: str) -> str:
         raise RuntimeError("simulated llm failure")
 

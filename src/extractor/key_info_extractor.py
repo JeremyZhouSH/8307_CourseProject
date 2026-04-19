@@ -7,6 +7,7 @@ from src.extractor.role_tagger_crf import SentenceRoleTagger
 from src.parser.section_splitter import Section
 
 
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class KeyInfoExtractor:
     SECTION_BUCKETS = {
         "objective": {"abstract", "introduction", "background", "motivation"},
@@ -17,6 +18,7 @@ class KeyInfoExtractor:
 
     ROLE_KEYS: tuple[str, ...] = ("objective", "methods", "results", "limitations")
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def __init__(self, extractor_cfg: dict[str, object] | None = None) -> None:
         cfg = extractor_cfg or {}
         # strategy: ilp(只走新算法) / hybrid(优先新算法,不足则回退) / rule(旧规则)。
@@ -47,6 +49,7 @@ class KeyInfoExtractor:
             min_role_coverage=min_role_coverage,
         )
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def extract(self, sections: list[Section]) -> dict[str, list[str]]:
         # 新主路径：角色标注 + ILP 选句。
         if self.strategy in {"ilp", "hybrid"}:
@@ -60,6 +63,7 @@ class KeyInfoExtractor:
 
         return self._extract_rule_based(sections)
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _extract_with_roles_and_ilp(self, sections: list[Section]) -> dict[str, list[str]]:
         tagged_sentences = self.role_tagger.tag_sections(sections)
         if not tagged_sentences:
@@ -109,6 +113,7 @@ class KeyInfoExtractor:
             grouped[role] = self._deduplicate(grouped[role])[: self.max_sentences_per_role]
         return grouped
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _fill_missing_roles(
         self,
         grouped: dict[str, list[str]],
@@ -126,6 +131,7 @@ class KeyInfoExtractor:
                     break
         return grouped
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _score_sentence(
         self,
         sentence: str,
@@ -148,6 +154,7 @@ class KeyInfoExtractor:
             score += 0.08
         return score
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _extract_rule_based(self, sections: list[Section]) -> dict[str, list[str]]:
         info: dict[str, list[str]] = {
             "objective": [],
@@ -173,13 +180,16 @@ class KeyInfoExtractor:
 
         return {key: self._deduplicate(value) for key, value in info.items()}
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _empty_info(self) -> dict[str, list[str]]:
         return {role: [] for role in self.ROLE_KEYS}
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _has_enough_info(self, info: dict[str, list[str]]) -> bool:
         non_empty_roles = sum(1 for role in self.ROLE_KEYS if info.get(role))
         return non_empty_roles >= 2
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _bucket_for_title(self, title: str) -> str | None:
         normalized = title.lower()
         for bucket, hints in self.SECTION_BUCKETS.items():
@@ -187,10 +197,12 @@ class KeyInfoExtractor:
                 return bucket
         return None
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _split_sentences(self, text: str) -> list[str]:
         parts = re.split(r"(?<=[.!?])\s+", text.strip())
         return [part.strip() for part in parts if part.strip()]
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _deduplicate(self, items: list[str]) -> list[str]:
         seen: set[str] = set()
         ordered: list[str] = []
@@ -200,5 +212,6 @@ class KeyInfoExtractor:
                 ordered.append(item)
         return ordered
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _word_count(self, text: str) -> int:
         return len(re.findall(r"[A-Za-z0-9]+(?:-[A-Za-z0-9]+)?", text))

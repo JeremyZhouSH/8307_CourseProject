@@ -21,6 +21,7 @@ from transformers import (
 from finetune.mi_layers import NodeLayerLoss, LinkLayerLoss, NetworkLayerLoss
 
 
+# 函数作用：构建命令行参数解析器并定义可配置项。
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="LoRA + MI fine-tuning for summarization.")
 
@@ -79,6 +80,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
+# 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
 def load_data(args: argparse.Namespace) -> DatasetDict:
     # 与预处理脚本保持一致：
     # - 若给 train_file/eval_file 则按文件加载
@@ -104,12 +106,14 @@ def load_data(args: argparse.Namespace) -> DatasetDict:
     )
 
 
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class CustomDataCollator(DataCollatorForSeq2Seq):
     """
     Extends DataCollatorForSeq2Seq to preserve string-list fields
     (entity types / spans) that cannot be tensor-stacked.
     """
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def __call__(self, features, return_tensors=None):
         # Extract custom fields before parent collator touches them.
         entity_type_list = [f.pop("entity_type_list", []) for f in features]
@@ -126,11 +130,13 @@ class CustomDataCollator(DataCollatorForSeq2Seq):
         return batch
 
 
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class LoRAMITrainer(Seq2SeqTrainer):
     """
     L_total = L_mle + lambda_node * L_node + lambda_link * L_link + lambda_network * L_network
     """
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def __init__(
         self,
         *args: Any,
@@ -144,6 +150,7 @@ class LoRAMITrainer(Seq2SeqTrainer):
         cooccurrence_window: int = 200,
         hidden_dim: int = 512,
         tokenizer: AutoTokenizer,
+        log_dir: str = "report/logs",
         **kwargs: Any,
     ) -> None:
         super().__init__(*args, tokenizer=tokenizer, **kwargs)
@@ -169,6 +176,14 @@ class LoRAMITrainer(Seq2SeqTrainer):
                 cooccurrence_window=cooccurrence_window,
             )
 
+        # Logging setup for report generation.
+        self.log_dir = Path(log_dir)
+        self.log_dir.mkdir(parents=True, exist_ok=True)
+        self.step_losses: dict[str, float] = {}
+        self.training_records: list[dict[str, Any]] = []
+        self.start_time: float | None = None
+
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _aux_modules(self) -> list[torch.nn.Module]:
         modules: list[torch.nn.Module] = [self.node_layer]
         if self.link_layer is not None:
@@ -177,10 +192,12 @@ class LoRAMITrainer(Seq2SeqTrainer):
             modules.append(self.network_layer)
         return modules
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _move_aux_modules_to_device(self, device: torch.device) -> None:
         for module in self._aux_modules():
             module.to(device)
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def create_optimizer(self):
         optimizer = super().create_optimizer()
         aux_params = []
@@ -204,6 +221,7 @@ class LoRAMITrainer(Seq2SeqTrainer):
             )
         return optimizer
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def compute_loss(
         self,
         model: torch.nn.Module,
@@ -295,11 +313,81 @@ class LoRAMITrainer(Seq2SeqTrainer):
 
         total_loss = mle_loss + total_mi_loss
 
+        # Record decomposed losses for reporting.
+        self.step_losses = {
+            "mle_loss": round(float(mle_loss.item()), 6),
+            "total_mi_loss": round(float(total_mi_loss.item()), 6),
+            "total_loss": round(float(total_loss.item()), 6),
+        }
+        if self.use_entity_prior and entity_input_ids is not None:
+            self.step_losses["node_loss"] = round(float(node_loss.item()), 6)
+            if self.link_layer is not None and "link_loss" in dir():
+                self.step_losses["link_loss"] = round(float(link_loss.item()), 6)
+            if self.network_layer is not None and "network_loss" in dir():
+                self.step_losses["network_loss"] = round(float(network_loss.item()), 6)
+
         if return_outputs:
             return total_loss, outputs
         return total_loss
 
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
+    def log(self, logs: dict[str, Any] | None = None) -> None:
+        """Override log to include decomposed losses and persist records."""
+        if logs is None:
+            logs = {}
+        logs = dict(logs)
+        logs.update(self.step_losses)
+
+        record = {
+            "step": self.state.global_step,
+            "epoch": round(float(self.state.epoch or 0), 4),
+            **logs,
+        }
+        self.training_records.append(record)
+
+        # Auto-save every 10 records to avoid losing data on crash.
+        if len(self.training_records) % 10 == 0:
+            self._save_training_logs()
+
+        super().log(logs)
+
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
+    def _save_training_logs(self) -> None:
+        path = self.log_dir / "training_log.json"
+        with path.open("w", encoding="utf-8") as f:
+            json.dump(self.training_records, f, ensure_ascii=False, indent=2)
+
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
+    def train(self, *args: Any, **kwargs: Any) -> Any:
+        import time
+        self.start_time = time.time()
+        result = super().train(*args, **kwargs)
+        elapsed = time.time() - self.start_time
+        self._save_training_logs()
+        self._save_training_summary(elapsed)
+        return result
+
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
+    def _save_training_summary(self, elapsed: float) -> None:
+        summary = {
+            "total_steps": self.state.global_step,
+            "total_epochs": float(self.args.num_train_epochs),
+            "elapsed_seconds": round(elapsed, 2),
+            "elapsed_minutes": round(elapsed / 60, 2),
+            "best_metric": self.state.best_metric,
+            "best_model_checkpoint": self.state.best_model_checkpoint,
+        }
+        if self.state.log_history:
+            last_log = self.state.log_history[-1]
+            summary["final_train_loss"] = last_log.get("loss")
+            summary["final_learning_rate"] = last_log.get("learning_rate")
+        path = self.log_dir / "training_summary.json"
+        with path.open("w", encoding="utf-8") as f:
+            json.dump(summary, f, ensure_ascii=False, indent=2)
+
+
+# 函数作用：程序入口，串联参数解析与主执行流程。
 def main() -> None:
     parser = build_arg_parser()
     args = parser.parse_args()
@@ -335,6 +423,7 @@ def main() -> None:
                 "Please run data preprocessing first."
             )
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _tokenize_entity_batch(
         entity_texts_strs: list[str],
         entity_types_strs: list[str],
@@ -392,6 +481,7 @@ def main() -> None:
 
         return batch_ids, batch_masks, batch_types, batch_spans
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def preprocess_train(batch: dict[str, list[Any]]) -> dict[str, Any]:
         inputs = [str(x) for x in batch[text_col]]
         targets = [str(x) for x in batch[summary_col]]
@@ -439,6 +529,7 @@ def main() -> None:
 
         return model_inputs
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def preprocess_eval(batch: dict[str, list[Any]]) -> dict[str, Any]:
         # 验证阶段：只走原始文本->摘要监督，不读取实体列。
         inputs = [str(x) for x in batch[text_col]]
@@ -472,6 +563,7 @@ def main() -> None:
 
     rouge = evaluate.load("rouge")
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def compute_metrics(eval_pred: tuple[np.ndarray, np.ndarray]) -> dict[str, float]:
         preds, labels = eval_pred
         decoded_preds = tokenizer.batch_decode(preds, skip_special_tokens=True)
@@ -505,6 +597,37 @@ def main() -> None:
     # Determine hidden_dim for link/network layer projections.
     hidden_dim = model.config.d_model if hasattr(model.config, "d_model") else 512
 
+    # Save hyperparameter config for report generation.
+    config_for_report = {
+        "model_name": args.model_name,
+        "base_model": args.model_name,
+        "lora_r": args.lora_r,
+        "lora_alpha": args.lora_alpha,
+        "lora_dropout": args.lora_dropout,
+        "lora_target_modules": args.lora_target_modules,
+        "learning_rate": args.learning_rate,
+        "num_train_epochs": args.num_train_epochs,
+        "per_device_train_batch_size": args.per_device_train_batch_size,
+        "gradient_accumulation_steps": args.gradient_accumulation_steps,
+        "weight_decay": args.weight_decay,
+        "max_input_length": args.max_input_length,
+        "max_target_length": args.max_target_length,
+        "lambda_node": args.lambda_node,
+        "lambda_link": args.lambda_link,
+        "lambda_network": args.lambda_network,
+        "use_entity_prior": args.use_entity_prior,
+        "use_link_layer": args.use_link_layer,
+        "use_network_layer": args.use_network_layer,
+        "missing_entity_penalty": args.missing_entity_penalty,
+        "cooccurrence_window": args.cooccurrence_window,
+        "train_samples": len(tokenized_train),
+        "eval_samples": len(tokenized_eval),
+    }
+    report_log_dir = Path("report/logs")
+    report_log_dir.mkdir(parents=True, exist_ok=True)
+    with (report_log_dir / "config.json").open("w", encoding="utf-8") as f:
+        json.dump(config_for_report, f, ensure_ascii=False, indent=2)
+
     trainer = LoRAMITrainer(
         model=model,
         args=train_args,
@@ -522,6 +645,7 @@ def main() -> None:
         missing_entity_penalty=args.missing_entity_penalty,
         cooccurrence_window=args.cooccurrence_window,
         hidden_dim=hidden_dim,
+        log_dir=str(report_log_dir),
     )
 
     trainer.train()
@@ -533,6 +657,11 @@ def main() -> None:
     for key, value in metrics.items():
         if key.startswith("eval_"):
             print(f"{key}: {value}")
+
+    # Save final eval metrics for report.
+    eval_report = {k: v for k, v in metrics.items() if k.startswith("eval_")}
+    with (report_log_dir / "eval_metrics.json").open("w", encoding="utf-8") as f:
+        json.dump(eval_report, f, ensure_ascii=False, indent=2)
 
 
 if __name__ == "__main__":

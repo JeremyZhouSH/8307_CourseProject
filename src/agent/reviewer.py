@@ -7,19 +7,23 @@ from src.agent.state import PipelineState
 
 
 @dataclass
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class ReviewDecision:
     should_retry: bool = False
     retry_action: AgentAction | None = None
     note: str = ""
 
 
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class AgentReviewer:
     """根据执行结果判断是否需要重试。"""
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def __init__(self, min_faithfulness: float = 0.65, retry_limit: int = 1) -> None:
         self.min_faithfulness = min_faithfulness
         self.retry_limit = max(0, retry_limit)
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def review(self, state: PipelineState, action: AgentAction, error: Exception | None = None) -> ReviewDecision:
         if error is not None:
             if state.retry_count < self.retry_limit:

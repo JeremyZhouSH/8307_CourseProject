@@ -8,6 +8,7 @@ from typing import Any
 
 
 @dataclass
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class MemoryRecord:
     request: str
     summary: str
@@ -17,13 +18,16 @@ class MemoryRecord:
     note: str = ""
 
 
+# 类作用：封装相关状态与方法，负责该模块的核心能力。
 class AgentMemoryStore:
     """长期记忆：将历史运行记录持久化到 JSONL。"""
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def __init__(self, path: str | Path = "data/outputs/agent_memory.jsonl") -> None:
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def append(self, record: MemoryRecord) -> None:
         payload = {
             "request": record.request,
@@ -36,6 +40,7 @@ class AgentMemoryStore:
         with self.path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(payload, ensure_ascii=False) + "\n")
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def retrieve(self, query: str, top_k: int = 3) -> list[dict[str, Any]]:
         if not self.path.exists():
             return []
@@ -58,6 +63,7 @@ class AgentMemoryStore:
         rows.sort(key=lambda x: x[0], reverse=True)
         return [item for score, item in rows[: max(1, top_k)] if score > 0]
 
+    # 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
     def best_strategy_for(self, query: str, min_score: float = 0.7) -> str | None:
         candidates = self.retrieve(query, top_k=10)
         if not candidates:
@@ -78,9 +84,11 @@ class AgentMemoryStore:
             return strategy
         return None
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _tokens(self, text: str) -> set[str]:
         return {t for t in re.findall(r"[A-Za-z0-9\u4e00-\u9fff]{2,}", text.lower())}
 
+    # 函数作用：内部辅助逻辑，服务当前类/模块主流程。
     def _similarity(self, left: set[str], right: set[str]) -> float:
         if not left or not right:
             return 0.0

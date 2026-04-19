@@ -20,6 +20,7 @@ from pathlib import Path
 from datasets import load_dataset
 
 
+# 函数作用：构建命令行参数解析器并定义可配置项。
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Prepare local PubMed dataset.")
     parser.add_argument("--dataset_name", default="ccdv/pubmed-summarization")
@@ -32,6 +33,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
+# 函数作用：执行当前步骤的核心逻辑，并返回处理结果。
 def save_jsonl(rows: list[dict[str, str]], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as f:
@@ -39,6 +41,7 @@ def save_jsonl(rows: list[dict[str, str]], path: Path) -> None:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
+# 函数作用：程序入口，串联参数解析与主执行流程。
 def main() -> None:
     parser = build_arg_parser()
     args = parser.parse_args()

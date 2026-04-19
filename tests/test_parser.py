@@ -1,6 +1,7 @@
 from src.parser.section_splitter import SectionSplitter
 
 
+# 测试函数作用：验证一个具体场景，确保行为与预期一致。
 def test_section_splitter_detects_common_sections() -> None:
     text = """
 INTRODUCTION
@@ -22,6 +23,7 @@ This section reports findings.
     assert "Results" in titles
 
 
+# 测试函数作用：验证一个具体场景，确保行为与预期一致。
 def test_section_splitter_fallback_for_plain_text() -> None:
     text = "Single paragraph without explicit headings."
 
