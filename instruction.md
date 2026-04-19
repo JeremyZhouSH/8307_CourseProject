@@ -58,7 +58,7 @@ pip install -r requirements.txt
 ### Step 3. 运行基础流水线
 
 ```bash
-python -m src.main \
+python3 -m src.main \
   --input data/samples/sample_paper.txt \
   --output data/outputs/summary.json
 ```
@@ -167,7 +167,7 @@ state = controller.run(
 
 回填继续执行：
 
-```python
+```python3
 state = controller.run(
   output_path="data/outputs/my_agent_summary.json",
   clarification_answers={
@@ -209,7 +209,7 @@ state = controller.run(
 ### 7.1 标准 Seq2Seq 微调
 
 ```bash
-python finetune/train_seq2seq.py \
+python3 finetune/train_seq2seq.py \
   --dataset_name ccdv/pubmed-summarization \
   --dataset_config document \
   --train_split "train[:2000]" \
@@ -220,7 +220,7 @@ python finetune/train_seq2seq.py \
 ### 7.2 使用本地 JSONL 微调
 
 ```bash
-python finetune/train_seq2seq.py \
+python3 finetune/train_seq2seq.py \
   --train_file data/samples/train.jsonl \
   --eval_file data/samples/dev.jsonl \
   --output_dir data/outputs/ft_local
@@ -229,7 +229,7 @@ python finetune/train_seq2seq.py \
 ### 7.3 推理
 
 ```bash
-python finetune/infer_seq2seq.py \
+python3 finetune/infer_seq2seq.py \
   --model_path data/outputs/ft_local \
   --input_file data/samples/sample_paper.txt
 ```
@@ -241,7 +241,7 @@ python finetune/infer_seq2seq.py \
 #### 7.4.1 预处理实体（默认仅训练集标注）
 
 ```bash
-python data/preprocess_entities.py \
+python3 data/preprocess_entities.py \
   --dataset_name ccdv/pubmed-summarization \
   --dataset_config document \
   --train_split "train[:2000]" \
@@ -262,7 +262,7 @@ python data/preprocess_entities.py \
 **仅节点层（实体类型 InfoNCE）**：
 
 ```bash
-python finetune/train_lora_mi.py \
+python3 finetune/train_lora_mi.py \
   --train_file data/samples/train_ner.jsonl \
   --eval_file data/samples/dev_ner.jsonl \
   --output_dir data/outputs/ft_lora_mi_node \
@@ -273,7 +273,7 @@ python finetune/train_lora_mi.py \
 **节点层 + 链路层（增加 TransE 约束）**：
 
 ```bash
-python finetune/train_lora_mi.py \
+python3 finetune/train_lora_mi.py \
   --train_file data/samples/train_ner.jsonl \
   --eval_file data/samples/dev_ner.jsonl \
   --output_dir data/outputs/ft_lora_mi_link \
@@ -287,7 +287,7 @@ python finetune/train_lora_mi.py \
 **完整三层（增加谱图网络对齐）**：
 
 ```bash
-python finetune/train_lora_mi.py \
+python3 finetune/train_lora_mi.py \
   --train_file data/samples/train_ner.jsonl \
   --eval_file data/samples/dev_ner.jsonl \
   --output_dir data/outputs/ft_lora_mi_full \
@@ -314,7 +314,7 @@ python finetune/train_lora_mi.py \
 ### Step 1. 数据准备（落地到本地）
 
 ```bash
-python scripts/prepare_data.py \
+python3 scripts/prepare_data.py \
   --num_train 2000 \
   --num_val 200 \
   --num_test 200
@@ -338,7 +338,7 @@ data/pubmed/
 **Baseline（标准 LoRA）**：
 
 ```bash
-python finetune/train_seq2seq.py \
+python3 finetune/train_seq2seq.py \
   --train_file data/pubmed/train_ner.jsonl \
   --eval_file data/pubmed/val_ner.jsonl \
   --output_dir data/outputs/baseline
@@ -347,7 +347,7 @@ python finetune/train_seq2seq.py \
 **三层框架（完整版）**：
 
 ```bash
-python finetune/train_lora_mi.py \
+python3 finetune/train_lora_mi.py \
   --train_file data/pubmed/train_ner.jsonl \
   --eval_file data/pubmed/val_ner.jsonl \
   --output_dir data/outputs/three_layer \
@@ -364,7 +364,7 @@ python finetune/train_lora_mi.py \
 在**验证集**上生成预测（用于调参对比）：
 
 ```bash
-python scripts/batch_predict.py \
+python3 scripts/batch_predict.py \
   --model_path data/outputs/three_layer \
   --input_file data/pubmed/val_ner.jsonl \
   --output_file data/outputs/predictions_val.jsonl \
@@ -374,7 +374,7 @@ python scripts/batch_predict.py \
 在**测试集**上生成预测（用于最终报告，只跑一次）：
 
 ```bash
-python scripts/batch_predict.py \
+python3 scripts/batch_predict.py \
   --model_path data/outputs/three_layer \
   --input_file data/pubmed/test.jsonl \
   --output_file data/outputs/predictions_test.jsonl
@@ -385,7 +385,7 @@ python scripts/batch_predict.py \
 **方式 A：用本地预测文件 + 本地参考文件**
 
 ```bash
-python scripts/evaluate.py \
+python3 scripts/evaluate.py \
   --pred_file data/outputs/predictions_val.jsonl \
   --ref_file data/pubmed/raw/val.jsonl \
   --output_file data/outputs/eval_val.json
@@ -394,7 +394,7 @@ python scripts/evaluate.py \
 **方式 B：用本地预测文件 + HuggingFace 在线参考**
 
 ```bash
-python scripts/evaluate.py \
+python3 scripts/evaluate.py \
   --pred_file data/outputs/predictions_val.jsonl \
   --dataset_name ccdv/pubmed-summarization \
   --dataset_config document \
@@ -423,24 +423,24 @@ python scripts/evaluate.py \
 
 ```bash
 # Baseline 预测
-python scripts/batch_predict.py \
+python3 scripts/batch_predict.py \
   --model_path data/outputs/baseline \
   --input_file data/pubmed/test.jsonl \
   --output_file data/outputs/predictions_baseline.jsonl
 
 # 三层框架预测
-python scripts/batch_predict.py \
+python3 scripts/batch_predict.py \
   --model_path data/outputs/three_layer \
   --input_file data/pubmed/test.jsonl \
   --output_file data/outputs/predictions_three_layer.jsonl
 
 # 分别评估
-python scripts/evaluate.py \
+python3 scripts/evaluate.py \
   --pred_file data/outputs/predictions_baseline.jsonl \
   --ref_file data/pubmed/raw/val.jsonl \
   --output_file data/outputs/eval_baseline.json
 
-python scripts/evaluate.py \
+python3 scripts/evaluate.py \
   --pred_file data/outputs/predictions_three_layer.jsonl \
   --ref_file data/pubmed/raw/val.jsonl \
   --output_file data/outputs/eval_three_layer.json
