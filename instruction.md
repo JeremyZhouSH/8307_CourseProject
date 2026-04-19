@@ -347,16 +347,26 @@ python3 finetune/train_seq2seq.py \
 **三层框架（完整版）**：
 
 ```bash
-python3 finetune/train_lora_mi.py \
+cd /root/autodl-tmp/8307_CourseProject
+
+export HF_ENDPOINT=https://hf-mirror.com
+OMP_NUM_THREADS=1 nohup python3 finetune/train_lora_mi.py \
+  --model_name google/flan-t5-large \
   --train_file data/pubmed/train_ner.jsonl \
   --eval_file data/pubmed/val_ner.jsonl \
-  --output_dir data/outputs/three_layer \
+  --output_dir data/outputs/three_layer_large \
   --use_entity_prior \
   --use_link_layer \
   --use_network_layer \
   --lambda_node 0.1 \
   --lambda_link 0.05 \
-  --lambda_network 0.03
+  --lambda_network 0.03 \
+  --num_train_epochs 2 \
+  --per_device_train_batch_size 2 \
+  --gradient_accumulation_steps 4 \
+  > train_three_layer_large.log 2>&1 &
+
+tail -f train_three_layer_large.log
 ```
 
 ### Step 3. 批量预测
